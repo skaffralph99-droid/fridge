@@ -11,6 +11,7 @@ import Clients from './pages/Clients'
 import NewClient from './pages/NewClient'
 import ClientDetail from './pages/ClientDetail'
 import Invoices from './pages/Invoices'
+import NewInvoice from './pages/NewInvoice'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth()
@@ -34,6 +35,7 @@ export default function App() {
             <Route path="/clients/new" element={<NewClient />} />
             <Route path="/clients/:id" element={<ClientDetail />} />
             <Route path="/invoices" element={<Invoices />} />
+            <Route path="/invoices/new" element={<NewInvoice />} />
           </Route>
         </Routes>
       </AuthProvider>

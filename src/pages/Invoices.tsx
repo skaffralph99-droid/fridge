@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import { format } from 'date-fns'
+import { Link } from 'react-router-dom'
+import { Plus } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 
 export default function Invoices() {
@@ -15,13 +17,16 @@ export default function Invoices() {
 
   return (
     <div className="p-4 max-w-lg mx-auto">
-      <h1 className="text-xl font-black text-frost-steel tracking-wide mb-6">Invoices</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-xl font-black text-frost-steel tracking-wide">Invoices</h1>
+        <Link to="/invoices/new" className="bg-frost-blue text-white rounded-lg px-4 py-2 text-sm font-bold flex items-center gap-1"><Plus size={16} /> New</Link>
+      </div>
       {invoices.length === 0 ? <p className="text-frost-dim text-center py-8">No invoices yet</p> : invoices.map(inv => (
         <div key={inv.id} className="card mb-3">
           <div className="flex justify-between items-start">
             <div>
               <p className="text-frost-steel font-bold text-sm">{inv.fridge_clients?.name}</p>
-              <p className="text-frost-dim text-xs">{format(new Date(inv.period_start), 'MMM dd')} – {format(new Date(inv.period_end), 'MMM dd, yyyy')}</p>
+              <p className="text-frost-dim text-xs">📅 {format(new Date(inv.period_start), 'MMM dd, yyyy')} – {format(new Date(inv.period_end), 'MMM dd, yyyy')}</p>
               <p className="text-frost-dim text-xs">{inv.total_tonnes}t × ${inv.rate}/t</p>
             </div>
             <div className="text-right">

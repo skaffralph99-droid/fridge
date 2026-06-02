@@ -96,7 +96,7 @@ export default function Dashboard() {
               </div>
               <div className="flex-1">
                 <p className="text-frost-steel text-sm font-semibold">{tx.fridge_clients?.name}</p>
-                <p className="text-frost-dim text-xs">{tx.product_type} · {tx.fridge_rooms?.name}</p>
+                <p className="text-frost-dim text-xs">{tx.product_type} · {tx.fridge_rooms?.name} · {format(new Date(tx.date), 'MMM dd yyyy')}</p>
               </div>
               <p className={`font-black ${tx.type === 'in' ? 'text-green-400' : 'text-red-400'}`}>
                 {tx.type === 'in' ? '+' : '−'}{tx.tonnes}t
