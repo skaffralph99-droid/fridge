@@ -6,7 +6,7 @@ import { Plus } from 'lucide-react'
 
 export default function Transactions() {
   const [txns, setTxns] = useState<any[]>([])
-  useEffect(() => { supabase.from('fridge_transactions').select('*, fridge_clients(name), fridge_rooms(name)').order('created_at', { ascending: false }).limit(50).then(({ data }) => setTxns(data ?? [])) }, [])
+  useEffect(() => { supabase.from('fridge_transactions').select('*, fridge_clients(name), fridge_rooms(name), fridge_transaction_workers(worker_id, role, amount, fridge_workers(name))').order('created_at', { ascending: false }).limit(50).then(({ data }) => setTxns(data ?? [])) }, [])
 
   return (
     <div className="p-4 max-w-lg mx-auto">
@@ -23,6 +23,11 @@ export default function Transactions() {
             <p className="text-frost-steel font-semibold text-sm">{tx.fridge_clients?.name}</p>
             <p className="text-frost-dim text-xs">{tx.product_type} · {tx.fridge_rooms?.name}</p>
             <p className="text-frost-dim text-[11px] mt-1">📅 {format(new Date(tx.date), 'EEEE, MMM dd yyyy')}</p>
+            {tx.fridge_transaction_workers?.length > 0 && (
+              <p className="text-frost-dim text-[11px] mt-1">
+                👷 {tx.fridge_transaction_workers.map((tw: any) => `${tw.fridge_workers?.name} ($${parseFloat(tw.amount).toFixed(0)})`).join(' · ')}
+              </p>
+            )}
           </div>
           <p className={`font-black text-base ${tx.type === 'in' ? 'text-green-400' : 'text-red-400'}`}>{tx.type === 'in' ? '+' : '−'}{tx.tonnes}t</p>
         </div>

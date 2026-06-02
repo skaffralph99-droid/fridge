@@ -115,6 +115,14 @@ export default function Dashboard() {
           <Plus size={16} /> New Client
         </Link>
       </div>
+      <div className="flex gap-3 mt-3">
+        <Link to="/invoices" className="flex-1 text-center border border-frost-border text-frost-dim rounded-xl py-3 font-bold text-sm uppercase tracking-wide hover:border-frost-blue transition-colors">
+          🧾 Invoices
+        </Link>
+        <Link to="/workers" className="flex-1 text-center border border-frost-border text-frost-dim rounded-xl py-3 font-bold text-sm uppercase tracking-wide hover:border-frost-blue transition-colors">
+          👷 Workers
+        </Link>
+      </div>
     </div>
   )
 }

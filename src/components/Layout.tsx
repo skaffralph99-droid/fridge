@@ -1,12 +1,12 @@
 import { Outlet, NavLink, useLocation } from 'react-router-dom'
-import { LayoutDashboard, Warehouse, ArrowLeftRight, Users, FileText } from 'lucide-react'
+import { LayoutDashboard, Warehouse, ArrowLeftRight, Users, HardHat } from 'lucide-react'
 
 const NAV = [
   { to: '/', icon: LayoutDashboard, label: 'Home' },
   { to: '/rooms', icon: Warehouse, label: 'Rooms' },
   { to: '/transactions', icon: ArrowLeftRight, label: 'In/Out' },
   { to: '/clients', icon: Users, label: 'Clients' },
-  { to: '/invoices', icon: FileText, label: 'Bills' },
+  { to: '/workers', icon: HardHat, label: 'Workers' },
 ]
 
 export default function Layout() {
