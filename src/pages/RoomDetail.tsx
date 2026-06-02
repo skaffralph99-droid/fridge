@@ -19,7 +19,7 @@ export default function RoomDetail() {
 
   if (!room) return <div className="flex items-center justify-center h-64"><div className="w-10 h-10 border-4 border-frost-blue border-t-transparent rounded-full animate-spin" /></div>
 
-  const pct = room.capacity_tonnes > 0 ? (room.current_tonnes / room.capacity_tonnes) * 100 : 0
+  const pct = parseFloat(room.capacity_tonnes) > 0 ? (parseFloat(room.current_tonnes) / parseFloat(room.capacity_tonnes)) * 100 : 0
   const barColor = pct > 85 ? 'bg-red-500' : pct > 60 ? 'bg-yellow-400' : 'bg-green-400'
 
   return (
@@ -31,13 +31,13 @@ export default function RoomDetail() {
           <div className={`h-full rounded-full ${barColor}`} style={{ width: `${pct}%` }} />
         </div>
         <div className="flex justify-between mt-2 text-frost-dim text-xs">
-          <span>{room.current_tonnes}t / {room.capacity_tonnes}t</span>
+          <span>{parseFloat(room.current_tonnes)}t / {parseFloat(room.capacity_tonnes)}t</span>
           <span className={pct > 85 ? 'text-red-400' : pct > 60 ? 'text-yellow-400' : 'text-green-400'}>{Math.round(pct)}%</span>
         </div>
         <div className="flex gap-6 mt-4">
           <div><p className="text-frost-dim text-[10px] uppercase">Target</p><p className="text-cyan-400 font-bold">{room.target_temp}°C</p></div>
           <div><p className="text-frost-dim text-[10px] uppercase">Current</p><p className="text-cyan-400 font-bold">{room.current_temp ?? '—'}°C</p></div>
-          <div><p className="text-frost-dim text-[10px] uppercase">Free</p><p className="text-green-400 font-bold">{(room.capacity_tonnes - room.current_tonnes).toLocaleString()}t</p></div>
+          <div><p className="text-frost-dim text-[10px] uppercase">Free</p><p className="text-green-400 font-bold">{(parseFloat(room.capacity_tonnes) - parseFloat(room.current_tonnes)).toLocaleString()}t</p></div>
         </div>
       </div>
 

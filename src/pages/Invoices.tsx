@@ -30,7 +30,7 @@ export default function Invoices() {
               <p className="text-frost-dim text-xs">{inv.total_tonnes}t × ${inv.rate}/t</p>
             </div>
             <div className="text-right">
-              <p className="text-frost-steel font-black text-lg">${inv.amount.toFixed(0)}</p>
+              <p className="text-frost-steel font-black text-lg">${parseFloat(inv.amount).toFixed(0)}</p>
               <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full border ${statusColor[inv.status] ?? 'text-frost-dim border-frost-border'}`}>{inv.status}</span>
             </div>
           </div>

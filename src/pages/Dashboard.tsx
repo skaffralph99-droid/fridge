@@ -29,8 +29,8 @@ export default function Dashboard() {
 
   if (loading) return <div className="flex items-center justify-center h-64"><div className="w-10 h-10 border-4 border-frost-blue border-t-transparent rounded-full animate-spin" /></div>
 
-  const totalCap = rooms.reduce((s, r) => s + r.capacity_tonnes, 0)
-  const totalUsed = rooms.reduce((s, r) => s + r.current_tonnes, 0)
+  const totalCap = rooms.reduce((s, r) => s + parseFloat(r.capacity_tonnes), 0)
+  const totalUsed = rooms.reduce((s, r) => s + parseFloat(r.current_tonnes), 0)
   const occupancy = totalCap ? Math.round((totalUsed / totalCap) * 100) : 0
 
   return (
@@ -62,14 +62,14 @@ export default function Dashboard() {
       <h2 className="text-frost-steel text-xs font-black uppercase tracking-widest mb-3">Rooms</h2>
       <div className="space-y-2 mb-6">
         {rooms.map(r => {
-          const pct = r.capacity_tonnes > 0 ? (r.current_tonnes / r.capacity_tonnes) * 100 : 0
+          const pct = parseFloat(r.capacity_tonnes) > 0 ? (parseFloat(r.current_tonnes) / parseFloat(r.capacity_tonnes)) * 100 : 0
           const barColor = pct > 85 ? 'bg-red-500' : pct > 60 ? 'bg-yellow-400' : 'bg-green-400'
           const textColor = pct > 85 ? 'text-red-400' : pct > 60 ? 'text-yellow-400' : 'text-green-400'
           return (
             <Link key={r.id} to={`/rooms/${r.id}`} className="card flex items-center gap-3 hover:border-frost-blue transition-colors">
               <div className="flex-1">
                 <p className="text-frost-steel font-bold text-sm">{r.name}</p>
-                <p className="text-frost-dim text-xs">{r.current_tonnes}t / {r.capacity_tonnes}t</p>
+                <p className="text-frost-dim text-xs">{parseFloat(r.current_tonnes)}t / {parseFloat(r.capacity_tonnes)}t</p>
               </div>
               <div className="w-20">
                 <div className="h-2 bg-frost-elevated rounded-full overflow-hidden">

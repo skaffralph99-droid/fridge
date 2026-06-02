@@ -19,7 +19,7 @@ export default function ClientDetail() {
 
   if (!client) return <div className="flex items-center justify-center h-64"><div className="w-10 h-10 border-4 border-frost-blue border-t-transparent rounded-full animate-spin" /></div>
 
-  const totalStored = inventory.reduce((s, i) => s + i.tonnes, 0)
+  const totalStored = inventory.reduce((s, i) => s + parseFloat(i.tonnes), 0)
 
   return (
     <div className="p-4 max-w-lg mx-auto">
