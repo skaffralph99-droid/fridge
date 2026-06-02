@@ -38,7 +38,30 @@ export default function NewTransaction() {
     await supabase.from('fridge_transactions').insert({ client_id: clientId, room_id: roomId, type, product_type: product, tonnes: t, date: new Date().toISOString().split('T')[0], notes: notes || null, recorded_by: user?.id })
     await supabase.from('fridge_rooms').update({ current_tonnes: (room?.current_tonnes ?? 0) + (type === 'in' ? t : -t) }).eq('id', roomId)
     if (type === 'in') {
-      await supabase.from('fridge_inventory').insert({ client_id: clientId, room_id: roomId, product_type: product, tonnes: t, rate_per_tonne: clients.find(c => c.id === clientId)?.rate_per_tonne ?? 45 })
+      // Check if existing inventory record for same client+room+product
+      const { data: existing } = await supabase.from('fridge_inventory')
+        .select('id, tonnes')
+        .eq('client_id', clientId).eq('room_id', roomId).eq('product_type', product)
+        .gt('tonnes', 0).limit(1).single()
+      if (existing) {
+        await supabase.from('fridge_inventory').update({ tonnes: existing.tonnes + t }).eq('id', existing.id)
+      } else {
+        await supabase.from('fridge_inventory').insert({ client_id: clientId, room_id: roomId, product_type: product, tonnes: t, rate_per_tonne: clients.find(c => c.id === clientId)?.rate_per_tonne ?? 45 })
+      }
+    } else {
+      // OUT: reduce inventory
+      const { data: existing } = await supabase.from('fridge_inventory')
+        .select('id, tonnes')
+        .eq('client_id', clientId).eq('room_id', roomId).eq('product_type', product)
+        .gt('tonnes', 0).limit(1).single()
+      if (existing) {
+        const remaining = existing.tonnes - t
+        if (remaining <= 0) {
+          await supabase.from('fridge_inventory').delete().eq('id', existing.id)
+        } else {
+          await supabase.from('fridge_inventory').update({ tonnes: remaining }).eq('id', existing.id)
+        }
+      }
     }
     setSaving(false)
     nav('/transactions')
