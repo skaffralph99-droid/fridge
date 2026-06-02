@@ -11,6 +11,7 @@ import Clients from './pages/Clients'
 import NewClient from './pages/NewClient'
 import ClientDetail from './pages/ClientDetail'
 import Invoices from './pages/Invoices'
+import Analytics from './pages/Analytics'
 import Workers from './pages/Workers'
 import NewWorker from './pages/NewWorker'
 import WorkerDetail from './pages/WorkerDetail'
@@ -39,6 +40,7 @@ export default function App() {
             <Route path="/clients/:id" element={<ClientDetail />} />
             <Route path="/invoices" element={<Invoices />} />
             <Route path="/invoices/new" element={<NewInvoice />} />
+            <Route path="/analytics" element={<Analytics />} />
             <Route path="/workers" element={<Workers />} />
             <Route path="/workers/new" element={<NewWorker />} />
             <Route path="/workers/:id" element={<WorkerDetail />} />

@@ -106,6 +106,16 @@ export default function Dashboard() {
         </div>
       )}
 
+      {/* Analytics */}
+      <Link to="/analytics" className="card mb-4 flex items-center gap-3 border-frost-blue hover:bg-frost-elevated transition-colors">
+        <div className="w-10 h-10 rounded-lg bg-frost-blue/15 flex items-center justify-center"><TrendingUp size={20} className="text-frost-blue" /></div>
+        <div className="flex-1">
+          <p className="text-frost-steel font-bold text-sm">Revenue Analytics</p>
+          <p className="text-frost-dim text-xs">See what you're making vs what you could make</p>
+        </div>
+        <span className="text-frost-blue text-lg">→</span>
+      </Link>
+
       {/* Quick Actions */}
       <div className="flex gap-3">
         <Link to="/transactions/new" className="btn-blue flex-1 text-center flex items-center justify-center gap-2">
