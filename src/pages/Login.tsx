@@ -1,21 +1,39 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { supabase } from '../lib/supabase'
 import { Snowflake } from 'lucide-react'
 
 export default function Login() {
-  const { signIn } = useAuth()
+  const { signIn, user } = useAuth()
+  const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [mode, setMode] = useState<'login' | 'signup'>('login')
+
+  useEffect(() => { if (user) navigate('/') }, [user, navigate])
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!email || !password) { setError('Enter email and password'); return }
     setLoading(true); setError('')
-    const err = await signIn(email, password)
+    try {
+      if (mode === 'signup') {
+        const { error: err } = await supabase.auth.signUp({ email, password })
+        if (err) { setError(err.message); setLoading(false); return }
+        setError('')
+        navigate('/')
+      } else {
+        const err = await signIn(email, password)
+        if (err) { setError(err); setLoading(false); return }
+        navigate('/')
+      }
+    } catch (e: any) {
+      setError(e?.message ?? 'Something went wrong')
+    }
     setLoading(false)
-    if (err) setError(err)
   }
 
   return (
@@ -30,14 +48,20 @@ export default function Login() {
           <div className="h-1 -mt-4 -mx-4 bg-frost-blue rounded-t-xl mb-4" />
           <div>
             <label className="label-f">Email</label>
-            <input type="email" value={email} onChange={e => setEmail(e.target.value)} className="input-f" placeholder="admin@fridge.com" />
+            <input type="email" value={email} onChange={e => setEmail(e.target.value)} className="input-f" placeholder="your@email.com" />
           </div>
           <div>
             <label className="label-f">Password</label>
             <input type="password" value={password} onChange={e => setPassword(e.target.value)} className="input-f" placeholder="••••••••" />
           </div>
           {error && <p className="text-red-400 text-sm font-semibold">{error}</p>}
-          <button type="submit" disabled={loading} className="btn-blue">{loading ? 'Signing in...' : 'Sign In'}</button>
+          <button type="submit" disabled={loading} className="btn-blue">
+            {loading ? 'Please wait...' : mode === 'login' ? 'Sign In' : 'Create Account'}
+          </button>
+          <button type="button" onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setError('') }}
+            className="w-full text-frost-dim text-sm text-center py-2 hover:text-frost-blue transition-colors">
+            {mode === 'login' ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
+          </button>
         </form>
       </div>
     </div>
