@@ -92,7 +92,7 @@ export default function Analytics() {
           <BarChart data={roomData} barGap={2}>
             <XAxis dataKey="name" tick={{ fill: '#7A8FA6', fontSize: 11 }} axisLine={false} tickLine={false} />
             <YAxis tick={{ fill: '#7A8FA6', fontSize: 10 }} axisLine={false} tickLine={false} width={35} />
-            <Tooltip {...tt} formatter={(v: number) => [`${v}t`]} />
+            <Tooltip {...tt} formatter={(v: any) => [`${v}t`]} />
             <Bar dataKey="used" stackId="a" fill="#3B82F6" name="Stored" />
             <Bar dataKey="free" stackId="a" fill="#1A2D47" radius={[4, 4, 0, 0]} name="Free" />
           </BarChart>
@@ -108,7 +108,7 @@ export default function Analytics() {
               <Pie data={pieData} cx="50%" cy="50%" innerRadius={45} outerRadius={75} paddingAngle={3} dataKey="value">
                 {pieData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
               </Pie>
-              <Tooltip {...tt} formatter={(v: number) => [`${v}t`]} />
+              <Tooltip {...tt} formatter={(v: any) => [`${v}t`]} />
             </PieChart>
           </ResponsiveContainer>
           <div className="flex flex-wrap gap-x-4 gap-y-1 justify-center mt-2">

@@ -21,7 +21,7 @@ export default function Layout() {
           <NavLink key={n.to} to={n.to} end={n.to === '/'} className={({ isActive }) =>
             `flex flex-col items-center gap-1 py-1 px-2 rounded-xl transition-colors ${isActive ? 'text-frost-blue' : 'text-frost-dim'}`
           }>
-            <n.icon size={19} strokeWidth={isActive ? 2.5 : 1.8} />
+            <n.icon size={19} />
             <span className="text-[9px] font-semibold">{n.label}</span>
           </NavLink>
         ))}
