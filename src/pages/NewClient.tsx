@@ -1,6 +1,6 @@
 import { useLang } from '../lib/i18n'
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { ArrowLeft } from 'lucide-react'
 
@@ -10,6 +10,8 @@ const TERMS = ['monthly', 'seasonal', 'lump_sum']
 export default function NewClient() {
   const { tr, dir } = useLang()
   const nav = useNavigate()
+  const [searchParams] = useSearchParams()
+  const fromTx = searchParams.get('from') === 'transaction'
   const [name, setName] = useState(''); const [phone, setPhone] = useState('')
   const [company, setCompany] = useState(''); const [whatsapp, setWhatsapp] = useState('')
   const [type, setType] = useState('farmer'); const [rate, setRate] = useState('45')
@@ -20,14 +22,14 @@ export default function NewClient() {
     e.preventDefault()
     if (!name.trim()) { setError('الاسم مطلوب'); return }
     setSaving(true)
-    const { error: err } = await supabase.from('fridge_clients').insert({
+    const { data, error: err } = await supabase.from('fridge_clients').insert({
       name: name.trim(), phone: phone || null, company: company || null,
       whatsapp: whatsapp || phone || null, client_type: type,
       rate_per_tonne: parseFloat(rate) || 45, payment_terms: terms, notes: notes || null,
-    })
+    }).select().single()
     setSaving(false)
     if (err) { setError(err.message); return }
-    nav('/clients')
+    fromTx ? nav(`/transactions/new?newClientId=${data.id}`) : nav('/clients')
   }
 
   const chip = (sel: boolean) => `px-4 py-2 rounded-full text-sm font-bold border cursor-pointer transition-all ${sel ? 'bg-frost-blue border-frost-blue text-white' : 'bg-frost-elevated border-frost-border text-frost-dim'}`

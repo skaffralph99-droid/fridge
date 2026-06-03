@@ -1,12 +1,14 @@
 import { useLang } from '../lib/i18n'
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { ArrowRight } from 'lucide-react'
 
 export default function NewWorker() {
   const { tr, dir } = useLang()
   const nav = useNavigate()
+  const [searchParams] = useSearchParams()
+  const fromTx = searchParams.get('from') === 'transaction'
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [role, setRole] = useState<'loader' | 'driver'>('loader')
@@ -14,6 +16,10 @@ export default function NewWorker() {
   const [rateUnloading, setRateUnloading] = useState('')
   const [rateDriver, setRateDriver] = useState('')
   const [saving, setSaving] = useState(false)
+
+  // Pre-set role from URL if coming from transaction
+  const urlRole = searchParams.get('role')
+  const [roleSet, setRoleSet] = useState(false)
   const [error, setError] = useState('')
 
   const submit = async (e: React.FormEvent) => {
@@ -30,7 +36,7 @@ export default function NewWorker() {
     })
     setSaving(false)
     if (err) { setError(err.message); return }
-    nav('/workers')
+    fromTx ? nav('/transactions/new') : nav('/workers')
   }
 
   const chip = (sel: boolean) => `px-4 py-2 rounded-full text-sm font-bold border cursor-pointer transition-all ${sel ? 'bg-frost-blue border-frost-blue text-white' : 'bg-frost-elevated border-frost-border text-frost-dim'}`
