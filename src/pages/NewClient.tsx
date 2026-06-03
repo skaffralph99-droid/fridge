@@ -18,7 +18,7 @@ export default function NewClient() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!name.trim()) { setError('Name required'); return }
+    if (!name.trim()) { setError('الاسم مطلوب'); return }
     setSaving(true)
     const { error: err } = await supabase.from('fridge_clients').insert({
       name: name.trim(), phone: phone || null, company: company || null,
@@ -37,16 +37,16 @@ export default function NewClient() {
       <button onClick={() => nav(-1)} className="text-frost-blue text-sm font-bold flex items-center gap-1 mb-4"><ArrowLeft size={16} /> {tr('back')}</button>
       <h1 className="text-xl font-black text-frost-steel mb-6">{tr('newClient')}</h1>
       <form onSubmit={submit} className="card space-y-4">
-        <div><label className="label-f">Name *</label><input value={name} onChange={e => setName(e.target.value)} className="input-f" placeholder="Ahmad Khalil" /></div>
-        <div><label className="label-f">Company</label><input value={company} onChange={e => setCompany(e.target.value)} className="input-f" placeholder="Bekaa Farms" /></div>
+        <div><label className="label-f">الاسم *</label><input value={name} onChange={e => setName(e.target.value)} className="input-f" placeholder="أحمد خليل" /></div>
+        <div><label className="label-f">الشركة</label><input value={company} onChange={e => setCompany(e.target.value)} className="input-f" placeholder="مزارع البقاع" /></div>
         <div><label className="label-f">{tr('phone')}</label><input value={phone} onChange={e => setPhone(e.target.value)} className="input-f" placeholder="+961 XX XXX XXX" /></div>
-        <div><label className="label-f">WhatsApp</label><input value={whatsapp} onChange={e => setWhatsapp(e.target.value)} className="input-f" placeholder="Same as phone if empty" /></div>
-        <div><label className="label-f">Type</label><div className="flex flex-wrap gap-2">{TYPES.map(t => <button type="button" key={t} onClick={() => setType(t)} className={chip(type === t)}>{t === 'farmer' ? '🌾' : t === 'factory' ? '🏭' : t === 'distributor' ? '🚚' : '📦'} {t}</button>)}</div></div>
-        <div><label className="label-f">Rate ($/tonne)</label><input value={rate} onChange={e => setRate(e.target.value)} className="input-f" type="number" step="0.5" /></div>
-        <div><label className="label-f">Payment Terms</label><div className="flex flex-wrap gap-2">{TERMS.map(t => <button type="button" key={t} onClick={() => setTerms(t)} className={chip(terms === t)}>{t.replace('_', ' ')}</button>)}</div></div>
-        <div><label className="label-f">Notes</label><input value={notes} onChange={e => setNotes(e.target.value)} className="input-f" placeholder="Special arrangements..." /></div>
+        <div><label className="label-f">واتساب</label><input value={whatsapp} onChange={e => setWhatsapp(e.target.value)} className="input-f" placeholder="نفس رقم الهاتف إذا فارغ" /></div>
+        <div><label className="label-f">النوع</label><div className="flex flex-wrap gap-2">{TYPES.map(t => <button type="button" key={t} onClick={() => setType(t)} className={chip(type === t)}>{t === 'farmer' ? '🌾' : t === 'factory' ? '🏭' : t === 'distributor' ? '🚚' : '📦'} {t}</button>)}</div></div>
+        <div><label className="label-f">السعر ($/طن)</label><input value={rate} onChange={e => setRate(e.target.value)} className="input-f" type="number" step="0.5" /></div>
+        <div><label className="label-f">شروط الدفع</label><div className="flex flex-wrap gap-2">{TERMS.map(t => <button type="button" key={t} onClick={() => setTerms(t)} className={chip(terms === t)}>{t.replace('_', ' ')}</button>)}</div></div>
+        <div><label className="label-f">ملاحظات</label><input value={notes} onChange={e => setNotes(e.target.value)} className="input-f" placeholder="ترتيبات خاصة..." /></div>
         {error && <p className="text-red-400 text-sm font-semibold">{error}</p>}
-        <button type="submit" disabled={saving} className="btn-blue">{saving ? tr('saving') : 'Add Client'}</button>
+        <button type="submit" disabled={saving} className="btn-blue">{saving ? tr('saving') : 'إضافة زبون'}</button>
       </form>
     </div>
   )

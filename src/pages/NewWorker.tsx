@@ -16,8 +16,8 @@ export default function NewWorker() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!name.trim()) { setError('Name required'); return }
-    if (!rate) { setError('Rate required'); return }
+    if (!name.trim()) { setError('الاسم مطلوب'); return }
+    if (!rate) { setError('السعر مطلوب'); return }
     setSaving(true)
     const { error: err } = await supabase.from('fridge_workers').insert({
       name: name.trim(), phone: phone || null, role, rate: parseFloat(rate) || 0,
@@ -34,21 +34,21 @@ export default function NewWorker() {
       <button onClick={() => nav(-1)} className="text-frost-blue text-sm font-bold flex items-center gap-1 mb-4"><ArrowLeft size={16} /> {tr('back')}</button>
       <h1 className="text-xl font-black text-frost-steel mb-6">{tr('newWorker')}</h1>
       <form onSubmit={submit} className="card space-y-4">
-        <div><label className="label-f">Name *</label><input value={name} onChange={e => setName(e.target.value)} className="input-f" placeholder="e.g. Hassan" /></div>
-        <div><label className="label-f">Phone</label><input value={phone} onChange={e => setPhone(e.target.value)} className="input-f" placeholder="+961 XX XXX XXX" /></div>
+        <div><label className="label-f">الاسم *</label><input value={name} onChange={e => setName(e.target.value)} className="input-f" placeholder="e.g. Hassan" /></div>
+        <div><label className="label-f">الهاتف</label><input value={phone} onChange={e => setPhone(e.target.value)} className="input-f" placeholder="+961 XX XXX XXX" /></div>
         <div>
-          <label className="label-f">Role</label>
+          <label className="label-f">الدور</label>
           <div className="flex gap-3">
             <button type="button" onClick={() => setRole('loader')} className={chip(role === 'loader')}>🏗️ Loader</button>
             <button type="button" onClick={() => setRole('driver')} className={chip(role === 'driver')}>🚛 Driver</button>
           </div>
         </div>
         <div>
-          <label className="label-f">Rate ({role === 'driver' ? '$ per trip' : '$ per tonne'})</label>
+          <label className="label-f">Rate ({role === 'driver' ? '$ لكل رحلة' : '$ لكل طن'})</label>
           <input type="number" step="0.5" value={rate} onChange={e => setRate(e.target.value)} className="input-f" placeholder={role === 'driver' ? 'e.g. 50' : 'e.g. 2'} />
         </div>
         {error && <p className="text-red-400 text-sm font-semibold">{error}</p>}
-        <button type="submit" disabled={saving} className="btn-blue">{saving ? tr('saving') : 'Add Worker'}</button>
+        <button type="submit" disabled={saving} className="btn-blue">{saving ? tr('saving') : 'إضافة عامل'}</button>
       </form>
     </div>
   )

@@ -25,7 +25,7 @@ export default function Invoices() {
       </div>
 
       {invoices.length === 0 ? (
-        <p className="text-frost-dim text-center py-12">No invoices yet</p>
+        <p className="text-frost-dim text-center py-12">لا توجد فواتير بعد</p>
       ) : (
         <div className="space-y-3">
           {invoices.map(inv => (

@@ -31,12 +31,12 @@ export default function Workers() {
       {workers.length > 3 && (
         <div className="relative mb-5">
           <Search className="absolute left-4 top-3.5 text-frost-dim" size={15} />
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search..." className="input-f pl-10" />
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="بحث..." className="input-f pl-10" />
         </div>
       )}
 
       {filtered.length === 0 ? (
-        <p className="text-frost-dim text-center py-12">No workers yet. Add loaders and drivers.</p>
+        <p className="text-frost-dim text-center py-12">لا يوجد عمال بعد. أضف عمال تحميل وسائقين.</p>
       ) : (
         <div className="space-y-2">
           {filtered.map(w => (

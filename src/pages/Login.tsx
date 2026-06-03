@@ -19,7 +19,7 @@ export default function Login() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!email || !password) { setError('Enter email and password'); return }
+    if (!email || !password) { setError('أدخل البريد وكلمة المرور'); return }
     setLoading(true); setError('')
     try {
       if (mode === 'signup') {
@@ -33,7 +33,7 @@ export default function Login() {
         navigate('/')
       }
     } catch (e: any) {
-      setError(e?.message ?? 'Something went wrong')
+      setError(e?.message ?? 'حدث خطأ')
     }
     setLoading(false)
   }
@@ -44,25 +44,25 @@ export default function Login() {
         <div className="text-center mb-8">
           <Snowflake className="mx-auto text-frost-cyan" size={56} strokeWidth={1.5} />
           <h1 className="text-3xl font-black text-frost-steel tracking-[6px] mt-4">FRIDGE</h1>
-          <p className="text-frost-dim text-sm tracking-widest mt-1">Cold Storage Manager</p>
+          <p className="text-frost-dim text-sm tracking-widest mt-1">إدارة التبريد</p>
         </div>
         <form onSubmit={submit} className="card space-y-4">
           <div className="h-1 -mt-4 -mx-4 bg-frost-blue rounded-t-xl mb-4" />
           <div>
-            <label className="label-f">Email</label>
+            <label className="label-f">البريد الإلكتروني</label>
             <input type="email" value={email} onChange={e => setEmail(e.target.value)} className="input-f" placeholder="your@email.com" />
           </div>
           <div>
-            <label className="label-f">Password</label>
+            <label className="label-f">كلمة المرور</label>
             <input type="password" value={password} onChange={e => setPassword(e.target.value)} className="input-f" placeholder="••••••••" />
           </div>
           {error && <p className="text-red-400 text-sm font-semibold">{error}</p>}
           <button type="submit" disabled={loading} className="btn-blue">
-            {loading ? 'Please wait...' : mode === 'login' ? tr('signIn') : 'Create Account'}
+            {loading ? 'جاري التحميل...' : mode === 'login' ? tr('signIn') : 'إنشاء حساب'}
           </button>
           <button type="button" onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setError('') }}
             className="w-full text-frost-dim text-sm text-center py-2 hover:text-frost-blue transition-colors">
-            {mode === 'login' ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
+            {mode === 'login' ? 'ليس لديك حساب؟ سجّل الآن' : 'لديك حساب؟ سجّل دخولك'}
           </button>
         </form>
       </div>

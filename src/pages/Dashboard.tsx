@@ -48,7 +48,7 @@ export default function Dashboard() {
       <div className="card mb-5">
         <div className="flex items-end justify-between">
           <div>
-            <p className="text-frost-dim text-xs mb-1">Total Stored</p>
+            <p className="text-frost-dim text-xs mb-1">إجمالي المخزون</p>
             <p className="text-4xl font-black text-frost-steel">{totalUsed.toLocaleString()}<span className="text-lg text-frost-dim ml-1">t</span></p>
           </div>
           <div className="text-right">
@@ -71,8 +71,8 @@ export default function Dashboard() {
           <TrendingUp size={18} className="text-frost-blue" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-frost-steel font-bold text-sm">Revenue Analytics</p>
-          <p className="text-frost-dim text-xs">Actual vs potential earnings</p>
+          <p className="text-frost-steel font-bold text-sm">تحليلات الإيرادات</p>
+          <p className="text-frost-dim text-xs">الأرباح الفعلية مقابل المحتملة</p>
         </div>
         <ChevronRight size={16} className="text-frost-dim shrink-0" />
       </Link>
@@ -104,7 +104,7 @@ export default function Dashboard() {
       {/* Recent Activity */}
       <p className="section-title">{tr('recentActivity')}</p>
       {recentTx.length === 0 ? (
-        <p className="text-frost-dim text-sm text-center py-6">No activity yet</p>
+        <p className="text-frost-dim text-sm text-center py-6">لا توجد حركات بعد</p>
       ) : (
         <div className="space-y-2 mb-2">
           {recentTx.map(tx => (
@@ -127,11 +127,11 @@ export default function Dashboard() {
       {/* Quick Actions */}
       <div className="mt-6 space-y-3">
         <Link to="/transactions/new" className="btn-blue flex items-center justify-center gap-2">
-          <Plus size={16} /> New Transaction
+          <Plus size={16} /> حركة جديدة
         </Link>
         <div className="flex gap-3">
           <Link to="/clients/new" className="flex-1 text-center border border-frost-border text-frost-dim rounded-xl py-3 text-sm font-semibold hover:border-frost-blue transition-colors">+ Client</Link>
-          <Link to="/invoices" className="flex-1 text-center border border-frost-border text-frost-dim rounded-xl py-3 text-sm font-semibold hover:border-frost-blue transition-colors">Invoices</Link>
+          <Link to="/invoices" className="flex-1 text-center border border-frost-border text-frost-dim rounded-xl py-3 text-sm font-semibold hover:border-frost-blue transition-colors">الفواتير</Link>
         </div>
       </div>
     </div>

@@ -39,18 +39,18 @@ export default function WorkerDetail() {
           </div>
         </div>
         <div className="flex gap-6">
-          <div><p className="text-frost-dim text-[10px] uppercase">Total Earned</p><p className="text-green-400 font-black text-xl">${totalEarned.toFixed(0)}</p></div>
-          <div><p className="text-frost-dim text-[10px] uppercase">Jobs</p><p className="text-frost-blue font-black text-xl">{jobCount}</p></div>
-          <div><p className="text-frost-dim text-[10px] uppercase">Rate</p><p className="text-frost-steel font-bold text-xl">${parseFloat(worker.rate)}</p></div>
+          <div><p className="text-frost-dim text-[10px] uppercase">إجمالي الأرباح</p><p className="text-green-400 font-black text-xl">${totalEarned.toFixed(0)}</p></div>
+          <div><p className="text-frost-dim text-[10px] uppercase">الوظائف</p><p className="text-frost-blue font-black text-xl">{jobCount}</p></div>
+          <div><p className="text-frost-dim text-[10px] uppercase">السعر</p><p className="text-frost-steel font-bold text-xl">${parseFloat(worker.rate)}</p></div>
         </div>
         {worker.phone && (
-          <a href={`tel:${worker.phone}`} className="mt-4 block border border-frost-blue text-frost-blue text-center py-2 rounded-lg font-bold text-sm"><Phone size={14} className="inline mr-2" />Call</a>
+          <a href={`tel:${worker.phone}`} className="mt-4 block border border-frost-blue text-frost-blue text-center py-2 rounded-lg font-bold text-sm"><Phone size={14} className="inline mr-2" />اتصال</a>
         )}
       </div>
 
-      <h2 className="text-frost-steel text-xs font-black uppercase tracking-widest mb-3">Job History</h2>
+      <h2 className="text-frost-steel text-xs font-black uppercase tracking-widest mb-3">سجل العمل</h2>
       {jobs.length === 0 ? (
-        <p className="text-frost-dim text-center py-4">No jobs yet</p>
+        <p className="text-frost-dim text-center py-4">لا توجد وظائف بعد</p>
       ) : jobs.map(j => {
         const tx = j.fridge_transactions
         return (

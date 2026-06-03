@@ -27,7 +27,7 @@ export default function Clients() {
       </div>
 
       {filtered.length === 0 ? (
-        <p className="text-frost-dim text-center py-12">No clients yet</p>
+        <p className="text-frost-dim text-center py-12">لا يوجد زبائن بعد</p>
       ) : (
         <div className="space-y-2">
           {filtered.map(c => (

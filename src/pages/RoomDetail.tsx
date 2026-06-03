@@ -37,14 +37,14 @@ export default function RoomDetail() {
           <span className={pct > 85 ? 'text-red-400' : pct > 60 ? 'text-yellow-400' : 'text-green-400'}>{Math.round(pct)}%</span>
         </div>
         <div className="flex gap-6 mt-4">
-          <div><p className="text-frost-dim text-[10px] uppercase">Target</p><p className="text-cyan-400 font-bold">{room.target_temp}°C</p></div>
-          <div><p className="text-frost-dim text-[10px] uppercase">Current</p><p className="text-cyan-400 font-bold">{room.current_temp ?? '—'}°C</p></div>
-          <div><p className="text-frost-dim text-[10px] uppercase">Free</p><p className="text-green-400 font-bold">{(parseFloat(room.capacity_tonnes) - parseFloat(room.current_tonnes)).toLocaleString()}t</p></div>
+          <div><p className="text-frost-dim text-[10px] uppercase">السعة</p><p className="text-cyan-400 font-bold">{room.target_temp}°C</p></div>
+          <div><p className="text-frost-dim text-[10px] uppercase">الحالي</p><p className="text-cyan-400 font-bold">{room.current_temp ?? '—'}°C</p></div>
+          <div><p className="text-frost-dim text-[10px] uppercase">فارغ</p><p className="text-green-400 font-bold">{(parseFloat(room.capacity_tonnes) - parseFloat(room.current_tonnes)).toLocaleString()}t</p></div>
         </div>
       </div>
 
-      <h2 className="text-frost-steel text-xs font-black uppercase tracking-widest mb-3">What's Stored</h2>
-      {inventory.length === 0 ? <p className="text-frost-dim text-center py-4">Empty</p> : inventory.map(inv => (
+      <h2 className="text-frost-steel text-xs font-black uppercase tracking-widest mb-3">المخزون</h2>
+      {inventory.length === 0 ? <p className="text-frost-dim text-center py-4">فارغ</p> : inventory.map(inv => (
         <div key={inv.id} className="card mb-2 flex justify-between items-center">
           <div>
             <p className="text-frost-steel font-semibold text-sm">{inv.fridge_clients?.name}</p>
@@ -54,7 +54,7 @@ export default function RoomDetail() {
         </div>
       ))}
 
-      <h2 className="text-frost-steel text-xs font-black uppercase tracking-widest mb-3 mt-6">Activity</h2>
+      <h2 className="text-frost-steel text-xs font-black uppercase tracking-widest mb-3 mt-6">الحركات</h2>
       {txns.map(tx => (
         <div key={tx.id} className="card mb-2 flex items-center gap-3">
           <span className={`text-xs font-black px-2 py-1 rounded ${tx.type === 'in' ? 'bg-green-500/15 text-green-400' : 'bg-red-500/15 text-red-400'}`}>{tx.type.toUpperCase()}</span>

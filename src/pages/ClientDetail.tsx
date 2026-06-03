@@ -30,9 +30,9 @@ export default function ClientDetail() {
         <h1 className="text-xl font-black text-frost-steel">{client.name}</h1>
         {client.company && <p className="text-frost-dim text-sm">{client.company}</p>}
         <div className="flex gap-6 mt-4">
-          <div><p className="text-frost-dim text-[10px] uppercase">Stored</p><p className="text-frost-blue font-black text-xl">{totalStored}t</p></div>
-          <div><p className="text-frost-dim text-[10px] uppercase">Rate</p><p className="text-green-400 font-bold text-xl">${client.rate_per_tonne}/t</p></div>
-          <div><p className="text-frost-dim text-[10px] uppercase">Terms</p><p className="text-frost-steel font-bold">{client.payment_terms}</p></div>
+          <div><p className="text-frost-dim text-[10px] uppercase">مخزّن</p><p className="text-frost-blue font-black text-xl">{totalStored}t</p></div>
+          <div><p className="text-frost-dim text-[10px] uppercase">السعر</p><p className="text-green-400 font-bold text-xl">${client.rate_per_tonne}/t</p></div>
+          <div><p className="text-frost-dim text-[10px] uppercase">شروط الدفع</p><p className="text-frost-steel font-bold">{client.payment_terms}</p></div>
         </div>
         <div className="flex gap-3 mt-4">
           {(client.whatsapp || client.phone) && <a href={`https://wa.me/${(client.whatsapp || client.phone)?.replace(/[^0-9]/g, '')}`} className="flex-1 bg-green-600 text-white text-center py-2 rounded-lg font-bold text-sm flex items-center justify-center gap-2"><MessageCircle size={16} /> WhatsApp</a>}
@@ -40,12 +40,12 @@ export default function ClientDetail() {
         </div>
       </div>
 
-      <h2 className="text-frost-steel text-xs font-black uppercase tracking-widest mb-3">Stored</h2>
-      {inventory.length === 0 ? <p className="text-frost-dim text-sm">Nothing stored</p> : inventory.map(inv => (
+      <h2 className="text-frost-steel text-xs font-black uppercase tracking-widest mb-3">مخزّن</h2>
+      {inventory.length === 0 ? <p className="text-frost-dim text-sm">لا يوجد مخزون</p> : inventory.map(inv => (
         <div key={inv.id} className="card mb-2 flex justify-between"><div><p className="text-frost-steel text-sm font-semibold">{inv.product_type}</p><p className="text-frost-dim text-xs">{inv.fridge_rooms?.name} · since {format(new Date(inv.date_in), 'MMM dd')}</p></div><p className="text-frost-blue font-black">{inv.tonnes}t</p></div>
       ))}
 
-      <h2 className="text-frost-steel text-xs font-black uppercase tracking-widest mb-3 mt-6">History</h2>
+      <h2 className="text-frost-steel text-xs font-black uppercase tracking-widest mb-3 mt-6">السجل</h2>
       {txns.map(tx => (
         <div key={tx.id} className="card mb-2 flex items-center gap-2">
           <span className={`text-[10px] font-black px-2 py-1 rounded ${tx.type === 'in' ? 'bg-green-500/15 text-green-400' : 'bg-red-500/15 text-red-400'}`}>{tx.type.toUpperCase()}</span>

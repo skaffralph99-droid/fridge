@@ -23,7 +23,7 @@ export default function Transactions() {
       </div>
 
       {txns.length === 0 ? (
-        <p className="text-frost-dim text-center py-12">No transactions yet</p>
+        <p className="text-frost-dim text-center py-12">لا توجد حركات بعد</p>
       ) : (
         <div className="space-y-2">
           {txns.map(tx => (

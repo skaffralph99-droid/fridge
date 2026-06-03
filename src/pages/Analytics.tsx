@@ -43,7 +43,7 @@ export default function Analytics() {
   const invoicePending = invoices.filter(i => i.status !== 'paid').reduce((s, i) => s + parseFloat(i.amount), 0)
 
   const roomData = rooms.map(r => ({
-    name: r.name.replace('Room ', 'R'),
+    name: r.name.replace('غرفة ', 'R'),
     used: parseFloat(r.current_tonnes),
     free: parseFloat(r.capacity_tonnes) - parseFloat(r.current_tonnes),
   }))
@@ -60,14 +60,14 @@ export default function Analytics() {
 
       {/* Revenue gauge */}
       <div className="card mb-5">
-        <p className="text-frost-dim text-xs mb-4">Monthly Revenue</p>
+        <p className="text-frost-dim text-xs mb-4">الإيرادات الشهرية</p>
         <div className="flex items-end justify-between mb-4">
           <div>
-            <p className="text-frost-dim text-[10px] uppercase mb-1">Making</p>
+            <p className="text-frost-dim text-[10px] uppercase mb-1">الفعلي</p>
             <p className="text-green-400 text-3xl font-black">${actualRev.toLocaleString()}</p>
           </div>
           <div className="text-right">
-            <p className="text-frost-dim text-[10px] uppercase mb-1">Could make</p>
+            <p className="text-frost-dim text-[10px] uppercase mb-1">المحتمل</p>
             <p className="text-frost-blue text-3xl font-black">${maxRev.toLocaleString()}</p>
           </div>
         </div>
@@ -81,7 +81,7 @@ export default function Analytics() {
             <TrendingDown size={16} className="text-red-400 mt-0.5 shrink-0" />
             <div>
               <p className="text-red-400 text-sm font-semibold">${gap.toLocaleString()}/mo opportunity</p>
-              <p className="text-frost-dim text-xs">Fill {(totalCap - totalStored).toLocaleString()}t more storage</p>
+              <p className="text-frost-dim text-xs">تعبئة {(totalCap - totalStored).toLocaleString()}t مساحة إضافية</p>
             </div>
           </div>
         )}
@@ -89,14 +89,14 @@ export default function Analytics() {
 
       {/* Room chart */}
       <div className="card mb-5">
-        <p className="text-frost-dim text-xs mb-3">Room Occupancy</p>
+        <p className="text-frost-dim text-xs mb-3">إشغال الغرف</p>
         <ResponsiveContainer width="100%" height={180}>
           <BarChart data={roomData} barGap={2}>
             <XAxis dataKey="name" tick={{ fill: '#7A8FA6', fontSize: 11 }} axisLine={false} tickLine={false} />
             <YAxis tick={{ fill: '#7A8FA6', fontSize: 10 }} axisLine={false} tickLine={false} width={35} />
             <Tooltip {...tt} formatter={(v: any) => [`${v}t`]} />
-            <Bar dataKey="used" stackId="a" fill="#3B82F6" name="Stored" />
-            <Bar dataKey="free" stackId="a" fill="#1A2D47" radius={[4, 4, 0, 0]} name="Free" />
+            <Bar dataKey="used" stackId="a" fill="#3B82F6" name="مخزّن" />
+            <Bar dataKey="free" stackId="a" fill="#1A2D47" radius={[4, 4, 0, 0]} name="فارغ" />
           </BarChart>
         </ResponsiveContainer>
       </div>
@@ -104,7 +104,7 @@ export default function Analytics() {
       {/* Client pie */}
       {pieData.length > 0 && (
         <div className="card mb-5">
-          <p className="text-frost-dim text-xs mb-3">Storage by Client</p>
+          <p className="text-frost-dim text-xs mb-3">التخزين حسب الزبون</p>
           <ResponsiveContainer width="100%" height={200}>
             <PieChart>
               <Pie data={pieData} cx="50%" cy="50%" innerRadius={45} outerRadius={75} paddingAngle={3} dataKey="value">
@@ -126,14 +126,14 @@ export default function Analytics() {
 
       {/* Financials */}
       <div className="card">
-        <p className="text-frost-dim text-xs mb-4">Financials</p>
+        <p className="text-frost-dim text-xs mb-4">الحسابات</p>
         <div className="space-y-3">
-          <div className="flex justify-between"><span className="text-frost-dim text-sm">Revenue</span><span className="text-green-400 font-bold">${actualRev.toLocaleString()}/mo</span></div>
-          <div className="flex justify-between"><span className="text-frost-dim text-sm">Collected</span><span className="text-green-400 font-semibold">${invoicePaid.toLocaleString()}</span></div>
-          <div className="flex justify-between"><span className="text-frost-dim text-sm">Pending</span><span className="text-yellow-300 font-semibold">${invoicePending.toLocaleString()}</span></div>
-          <div className="flex justify-between"><span className="text-frost-dim text-sm">Labor Costs</span><span className="text-red-400 font-semibold">-${workerCosts.toLocaleString()}</span></div>
+          <div className="flex justify-between"><span className="text-frost-dim text-sm">الإيرادات</span><span className="text-green-400 font-bold">${actualRev.toLocaleString()}/mo</span></div>
+          <div className="flex justify-between"><span className="text-frost-dim text-sm">المحصّل</span><span className="text-green-400 font-semibold">${invoicePaid.toLocaleString()}</span></div>
+          <div className="flex justify-between"><span className="text-frost-dim text-sm">المعلّق</span><span className="text-yellow-300 font-semibold">${invoicePending.toLocaleString()}</span></div>
+          <div className="flex justify-between"><span className="text-frost-dim text-sm">تكاليف العمالة</span><span className="text-red-400 font-semibold">-${workerCosts.toLocaleString()}</span></div>
           <div className="border-t border-frost-border pt-3 flex justify-between">
-            <span className="text-frost-steel font-bold">Net Profit</span>
+            <span className="text-frost-steel font-bold">صافي الربح</span>
             <span className="text-frost-steel font-black text-lg">${(actualRev - workerCosts).toLocaleString()}</span>
           </div>
         </div>
