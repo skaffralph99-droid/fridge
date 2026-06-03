@@ -2,13 +2,18 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
-import { ArrowLeft, ArrowRight, Plus } from 'lucide-react'
+import { ArrowRight, Plus, ChevronLeft, ChevronRight, Check } from 'lucide-react'
 
 const PRODUCTS = ['بطاطا', 'تفاح', 'بصل', 'قمح', 'لحوم', 'جبنة', 'ألبان', 'مجمّدات', 'أخرى']
 
 export default function NewTransaction() {
   const nav = useNavigate()
   const { user } = useAuth()
+
+  // Step tracker
+  const [step, setStep] = useState(1)
+
+  // Data
   const [type, setType] = useState<'in' | 'out'>('in')
   const [clients, setClients] = useState<any[]>([])
   const [rooms, setRooms] = useState<any[]>([])
@@ -16,29 +21,29 @@ export default function NewTransaction() {
   const [clientId, setClientId] = useState('')
   const [roomId, setRoomId] = useState('')
   const [product, setProduct] = useState('بطاطا')
-  const [tonnes, setTonnes] = useState('')
-  const [notes, setNotes] = useState('')
-  const [saving, setSaving] = useState(false)
-  const [error, setError] = useState('')
-  const [txDate, setTxDate] = useState(() => new Date().toISOString().slice(0, 10))
   const [company, setCompany] = useState('')
+  const [txDate, setTxDate] = useState(() => new Date().toISOString().slice(0, 10))
 
-  // Weighbridge ticket
-  // ticket_ref is auto-generated from ticket_no sequence
+  // Weighbridge
   const [plateNumber, setPlateNumber] = useState('')
   const [weightFirst, setWeightFirst] = useState('')
   const [weightSecond, setWeightSecond] = useState('')
-  
-
   const wFirst = parseFloat(weightFirst) || 0
   const wSecond = parseFloat(weightSecond) || 0
   const netKg = Math.abs(wSecond - wFirst)
+  const tonnes = netKg > 0 ? (netKg / 1000).toFixed(2) : ''
 
   // Workers
   const [selectedLoaders, setSelectedLoaders] = useState<string[]>([])
   const [noLoaders, setNoLoaders] = useState(false)
   const [selectedDriver, setSelectedDriver] = useState('')
   const [noDriver, setNoDriver] = useState(false)
+
+  const [notes, setNotes] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
+
+  // Inventory for OUT
   const [clientInventory, setClientInventory] = useState<any[]>([])
 
   useEffect(() => {
@@ -54,10 +59,6 @@ export default function NewTransaction() {
       .then(({ data }) => setClientInventory(data ?? []))
   }, [clientId, roomId])
 
-  useEffect(() => {
-    if (netKg > 0) setTonnes((netKg / 1000).toFixed(2))
-  }, [netKg])
-
   const loaders = workers.filter(w => w.role === 'loader')
   const drivers = workers.filter(w => w.role === 'driver')
   const t = parseFloat(tonnes) || 0
@@ -67,28 +68,33 @@ export default function NewTransaction() {
     return sum + r * t
   }, 0)
   const driverCost = selectedDriver ? parseFloat(workers.find(w => w.id === selectedDriver)?.rate ?? 0) : 0
-  const totalLaborCost = loaderCost + driverCost
 
   const toggleLoader = (id: string) => {
+    setNoLoaders(false)
     setSelectedLoaders(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
   }
 
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!clientId) { setError('يرجى اختيار الزبون'); return }
-    if (!roomId) { setError('يرجى اختيار الغرفة'); return }
-    if (!product) { setError('يرجى اختيار المنتج'); return }
-    if (!tonnes || t <= 0) { setError('يرجى إدخال الكمية'); return }
-    if (!txDate) { setError('يرجى اختيار التاريخ'); return }
-    // ticket_ref auto-generated
-    if (!plateNumber) { setError('يرجى إدخال رقم الشاحنة'); return }
-    if (!weightFirst || !weightSecond) { setError('يرجى إدخال الوزنتين'); return }
-    if (!noLoaders && selectedLoaders.length === 0) { setError('يرجى اختيار العمال أو الضغط على "بدون"'); return }
-    if (!noDriver && !selectedDriver) { setError('يرجى اختيار السائق أو الضغط على "بدون"'); return }
-    
+  const clientName = clients.find(c => c.id === clientId)?.name ?? ''
+  const roomName = rooms.find(r => r.id === roomId)?.name ?? ''
+
+  // Validation per step
+  const canNext = () => {
+    setError('')
+    if (step === 1 && !clientId) { setError('اختر الزبون'); return false }
+    if (step === 1 && !roomId) { setError('اختر الغرفة'); return false }
+    if (step === 2 && !plateNumber) { setError('أدخل رقم الشاحنة'); return false }
+    if (step === 2 && (!weightFirst || !weightSecond)) { setError('أدخل الوزنتين'); return false }
+    if (step === 3 && !noLoaders && selectedLoaders.length === 0) { setError('اختر العمال أو اضغط "بدون"'); return false }
+    if (step === 3 && !noDriver && !selectedDriver) { setError('اختر السائق أو اضغط "بدون"'); return false }
+    return true
+  }
+
+  const next = () => { if (canNext()) setStep(s => s + 1) }
+  const prev = () => { setError(''); setStep(s => s - 1) }
+
+  const submit = async () => {
     setSaving(true); setError('')
 
-    // Re-fetch room for latest data
     const { data: freshRoom } = await supabase.from('fridge_rooms').select('*').eq('id', roomId).single()
     if (!freshRoom) { setError('غرفة غير موجودة'); setSaving(false); return }
 
@@ -103,58 +109,49 @@ export default function NewTransaction() {
     if (type === 'out') {
       const inv = clientInventory.find(i => i.product_type === product)
       if (!inv || parseFloat(inv.tonnes) < t) {
-        setError(`الكمية المخزنة غير كافية — المتاح: ${parseFloat(inv?.tonnes ?? 0)} طن`)
+        setError(`الكمية المخزنة غير كافية`)
         setSaving(false); return
       }
     }
 
-    // Save transaction
     const { data: tx, error: txErr } = await supabase.from('fridge_transactions').insert({
       client_id: clientId, room_id: roomId, type, product_type: product,
       tonnes: t, date: txDate, notes: notes || null, recorded_by: user?.id,
-       plate_number: plateNumber || null,
+      plate_number: plateNumber || null,
       weight_first: wFirst || null, weight_second: wSecond || null,
-      weight_net: netKg || null, 
-      company: company || null,
+      weight_net: netKg || null, company: company || null,
     }).select('ticket_no').single()
 
     if (txErr) { setError(txErr.message); setSaving(false); return }
 
-    // Update room tonnage
     const newTonnes = type === 'in' ? currentTonnes + t : Math.max(0, currentTonnes - t)
     await supabase.from('fridge_rooms').update({ current_tonnes: newTonnes }).eq('id', roomId)
 
-    // Update inventory
     const { data: existingInv } = await supabase.from('fridge_inventory').select('*')
       .eq('client_id', clientId).eq('room_id', roomId).eq('product_type', product).single()
 
     if (existingInv) {
-      const newQty = type === 'in'
-        ? parseFloat(existingInv.tonnes) + t
-        : Math.max(0, parseFloat(existingInv.tonnes) - t)
-      if (newQty <= 0) {
-        await supabase.from('fridge_inventory').delete().eq('id', existingInv.id)
-      } else {
-        await supabase.from('fridge_inventory').update({ tonnes: newQty }).eq('id', existingInv.id)
-      }
+      const newQty = type === 'in' ? parseFloat(existingInv.tonnes) + t : Math.max(0, parseFloat(existingInv.tonnes) - t)
+      if (newQty <= 0) await supabase.from('fridge_inventory').delete().eq('id', existingInv.id)
+      else await supabase.from('fridge_inventory').update({ tonnes: newQty }).eq('id', existingInv.id)
     } else if (type === 'in') {
-      await supabase.from('fridge_inventory').insert({
-        client_id: clientId, room_id: roomId, product_type: product, tonnes: t,
-      })
+      await supabase.from('fridge_inventory').insert({ client_id: clientId, room_id: roomId, product_type: product, tonnes: t })
     }
 
-    // Save worker assignments
     if ((selectedLoaders.length > 0 && !noLoaders) || (selectedDriver && !noDriver)) {
-      const workerRecords = []
+      const records: any[] = []
       for (const lid of selectedLoaders) {
         const w = workers.find(x => x.id === lid)
-        if (w) { const r = type === 'in' ? parseFloat(w.rate_loading ?? w.rate) : parseFloat(w.rate_unloading ?? w.rate); workerRecords.push({ transaction_id: tx.id, worker_id: lid, role: 'loader', earnings: r * t }) }
+        if (w) {
+          const r = type === 'in' ? parseFloat(w.rate_loading ?? w.rate) : parseFloat(w.rate_unloading ?? w.rate)
+          records.push({ transaction_id: tx.id, worker_id: lid, role: 'loader', earnings: r * t })
+        }
       }
-      if (selectedDriver) {
+      if (selectedDriver && !noDriver) {
         const w = workers.find(x => x.id === selectedDriver)
-        if (w) workerRecords.push({ transaction_id: tx.id, worker_id: selectedDriver, role: 'driver', earnings: parseFloat(w.rate) })
+        if (w) records.push({ transaction_id: tx.id, worker_id: selectedDriver, role: 'driver', earnings: parseFloat(w.rate) })
       }
-      await supabase.from('fridge_transaction_workers').insert(workerRecords)
+      if (records.length > 0) await supabase.from('fridge_transaction_workers').insert(records)
     }
 
     setSaving(false)
@@ -162,158 +159,192 @@ export default function NewTransaction() {
     nav('/transactions')
   }
 
-  const chip = (selected: boolean) => `px-4 py-2 rounded-full text-sm font-bold border cursor-pointer transition-all ${selected ? 'bg-frost-blue border-frost-blue text-white' : 'bg-frost-elevated border-frost-border text-frost-dim hover:border-frost-blue'}`
-  const chipGreen = (selected: boolean) => `px-4 py-2 rounded-full text-sm font-bold border cursor-pointer transition-all ${selected ? 'bg-green-600 border-green-600 text-white' : 'bg-frost-elevated border-frost-border text-frost-dim hover:border-green-600'}`
-  const chipOrange = (selected: boolean) => `px-4 py-2 rounded-full text-sm font-bold border cursor-pointer transition-all ${selected ? 'bg-orange-600 border-orange-600 text-white' : 'bg-frost-elevated border-frost-border text-frost-dim hover:border-orange-600'}`
+  const chip = (sel: boolean) => `px-4 py-2.5 rounded-2xl text-sm font-bold border-2 cursor-pointer transition-all ${sel ? 'bg-frost-blue border-frost-blue text-white scale-105' : 'bg-frost-elevated border-frost-border text-frost-dim'}`
+  const chipGreen = (sel: boolean) => `px-4 py-2.5 rounded-2xl text-sm font-bold border-2 cursor-pointer transition-all ${sel ? 'bg-green-600 border-green-600 text-white' : 'bg-frost-elevated border-frost-border text-frost-dim'}`
+  const chipOrange = (sel: boolean) => `px-4 py-2.5 rounded-2xl text-sm font-bold border-2 cursor-pointer transition-all ${sel ? 'bg-orange-600 border-orange-600 text-white' : 'bg-frost-elevated border-frost-border text-frost-dim'}`
 
-  const availableProducts = type === 'out' && clientId && roomId
-    ? clientInventory.map(i => i.product_type) : PRODUCTS
+  const steps = ['الزبون والغرفة', 'القبان', 'العمال', 'تأكيد']
 
   return (
-    <div className="p-4 max-w-lg mx-auto" dir="rtl">
+    <div className="p-4 max-w-lg mx-auto pb-32" dir="rtl">
       <button onClick={() => nav(-1)} className="text-frost-blue text-sm font-bold flex items-center gap-1 mb-4"><ArrowRight size={16} /> رجوع</button>
-      <h1 className="text-xl font-black text-frost-steel mb-6">حركة جديدة</h1>
 
       {/* Type toggle */}
-      <div className="flex gap-3 mb-6">
-        <button onClick={() => setType('in')} className={`flex-1 py-3 rounded-xl font-bold uppercase tracking-wide border-2 transition-all ${type === 'in' ? 'bg-green-500 border-green-500 text-black' : 'border-frost-border text-frost-dim'}`}>▼ إدخال بضاعة</button>
-        <button onClick={() => setType('out')} className={`flex-1 py-3 rounded-xl font-bold uppercase tracking-wide border-2 transition-all ${type === 'out' ? 'bg-red-500 border-red-500 text-white' : 'border-frost-border text-frost-dim'}`}>▲ إخراج بضاعة</button>
+      <div className="flex gap-3 mb-5">
+        <button onClick={() => setType('in')} className={`flex-1 py-3.5 rounded-2xl font-bold text-lg border-2 transition-all ${type === 'in' ? 'bg-green-500 border-green-500 text-black' : 'border-frost-border text-frost-dim'}`}>▼ إدخال</button>
+        <button onClick={() => setType('out')} className={`flex-1 py-3.5 rounded-2xl font-bold text-lg border-2 transition-all ${type === 'out' ? 'bg-red-500 border-red-500 text-white' : 'border-frost-border text-frost-dim'}`}>▲ إخراج</button>
       </div>
 
-      <form onSubmit={submit} className="space-y-4">
-        {/* Client + Room + Product + Tonnes */}
-        <div className="card space-y-5">
+      {/* Step indicator */}
+      <div className="flex items-center gap-1 mb-6">
+        {steps.map((s, i) => (
+          <div key={i} className="flex-1 flex flex-col items-center gap-1">
+            <div className={`w-full h-1.5 rounded-full transition-all ${i + 1 <= step ? 'bg-frost-blue' : 'bg-frost-border'}`} />
+            <span className={`text-[9px] font-bold ${i + 1 <= step ? 'text-frost-blue' : 'text-frost-dim'}`}>{s}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* STEP 1: Client + Room + Product */}
+      {step === 1 && (
+        <div className="space-y-5">
           <div>
-            <label className="label-f">الزبون *</label>
-            <div className="flex flex-wrap gap-2">{clients.map(c => <button type="button" key={c.id} onClick={() => setClientId(c.id)} className={chip(clientId === c.id)}>{c.name}</button>)}</div>
+            <label className="label-f text-base mb-2 block">من الزبون؟</label>
+            <div className="flex flex-wrap gap-2">
+              {clients.map(c => <button key={c.id} onClick={() => setClientId(c.id)} className={chip(clientId === c.id)}>{c.name}</button>)}
+              <button onClick={() => nav('/clients/new')} className="text-frost-blue text-sm font-bold flex items-center gap-1 px-3"><Plus size={14} /></button>
+            </div>
           </div>
 
-          {/* Company field - appears after client selected */}
           {clientId && (
             <div>
-              <label className="label-f">الشركة — اشترى من</label>
+              <label className="label-f">الشركة — اشترى من (اختياري)</label>
               <input value={company} onChange={e => setCompany(e.target.value)} className="input-f" placeholder="اسم الشركة المورّدة" />
             </div>
           )}
 
           <div>
-            <label className="label-f">الغرفة *</label>
+            <label className="label-f text-base mb-2 block">أي غرفة؟</label>
             <div className="flex flex-wrap gap-2">{rooms.map(r => {
               const pct = Math.round((parseFloat(r.current_tonnes) / parseFloat(r.capacity_tonnes)) * 100)
-              return <button type="button" key={r.id} onClick={() => setRoomId(r.id)} className={chip(roomId === r.id)}>{r.name} ({pct}%)</button>
+              return <button key={r.id} onClick={() => setRoomId(r.id)} className={chip(roomId === r.id)}>{r.name} ({pct}%)</button>
             })}</div>
           </div>
+
           <div>
-            <label className="label-f">المنتج * {type === 'out' && clientId && roomId && availableProducts.length === 0 ? '— لا يوجد مخزون' : ''}</label>
+            <label className="label-f text-base mb-2 block">شو المنتج؟</label>
             <div className="flex flex-wrap gap-2">
-              {(type === 'out' && clientId && roomId ? availableProducts : PRODUCTS).map(p => {
-                const inv = clientInventory.find(i => i.product_type === p)
-                return <button type="button" key={p} onClick={() => setProduct(p)} className={chip(product === p)}>{p}{type === 'out' && inv ? ` (${parseFloat(inv.tonnes)}t)` : ''}</button>
-              })}
+              {(type === 'out' && clientId && roomId ? clientInventory.map(i => i.product_type) : PRODUCTS).map(p => (
+                <button key={p} onClick={() => setProduct(p)} className={chip(product === p)}>{p}</button>
+              ))}
             </div>
           </div>
 
-          {/* Date picker */}
           <div>
             <label className="label-f">{type === 'in' ? 'تاريخ التحميل' : 'تاريخ التنزيل'}</label>
             <input type="date" value={txDate} onChange={e => setTxDate(e.target.value)} className="input-f" />
           </div>
+        </div>
+      )}
+
+      {/* STEP 2: Weighbridge */}
+      {step === 2 && (
+        <div className="space-y-5">
+          <h2 className="text-lg font-black text-frost-steel">⚖️ القبان</h2>
 
           <div>
-            <label className="label-f">الكمية (طن) *</label>
-            <input type="number" step="0.1" value={tonnes} onChange={e => setTonnes(e.target.value)} className="input-f" placeholder="مثال: 12.5" />
-            {type === 'out' && product && clientInventory.find(i => i.product_type === product) && (
-              <p className="text-frost-dim text-xs mt-1">المتاح: {parseFloat(clientInventory.find(i => i.product_type === product)?.tonnes ?? 0)} طن</p>
-            )}
+            <label className="label-f">رقم الشاحنة</label>
+            <input value={plateNumber} onChange={e => setPlateNumber(e.target.value)} className="input-f text-lg" placeholder="338455" />
           </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="label-f">الوزنة الأولى (كغ)</label>
+              <input type="number" value={weightFirst} onChange={e => setWeightFirst(e.target.value)} className="input-f text-lg" placeholder="5360" />
+            </div>
+            <div>
+              <label className="label-f">الوزنة الثانية (كغ)</label>
+              <input type="number" value={weightSecond} onChange={e => setWeightSecond(e.target.value)} className="input-f text-lg" placeholder="17300" />
+            </div>
+          </div>
+
+          {netKg > 0 && (
+            <div className="bg-frost-blue/10 border-2 border-frost-blue/30 rounded-2xl p-4 text-center">
+              <p className="text-frost-dim text-sm mb-1">الوزن الصافي</p>
+              <p className="text-frost-blue font-black text-3xl">{(netKg / 1000).toFixed(2)} طن</p>
+              <p className="text-frost-dim text-xs mt-1">{netKg.toLocaleString()} كغ</p>
+            </div>
+          )}
+
           <div>
             <label className="label-f">ملاحظات (اختياري)</label>
             <input value={notes} onChange={e => setNotes(e.target.value)} className="input-f" placeholder="دفعة، نوعية..." />
           </div>
         </div>
+      )}
 
-        {/* Weighbridge ticket */}
-        <div className="card space-y-5">
-          <h2 className="text-frost-steel text-sm font-black uppercase tracking-widest">⚖️ بطاقة القبان</h2>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="label-f">المرجع</label>
-              <div className="input-f bg-frost-elevated text-frost-dim cursor-not-allowed">تلقائي — يُحدد عند الحفظ</div>
-            </div>
-            <div>
-              <label className="label-f">رقم الشاحنة *</label>
-              <input value={plateNumber} onChange={e => setPlateNumber(e.target.value)} className="input-f" placeholder="338455" />
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="label-f">الوزنة الأولى (كغ) *</label>
-              <input type="number" step="1" value={weightFirst} onChange={e => setWeightFirst(e.target.value)} className="input-f" placeholder="5360" />
-            </div>
-            <div>
-              <label className="label-f">الوزنة الثانية (كغ) *</label>
-              <input type="number" step="1" value={weightSecond} onChange={e => setWeightSecond(e.target.value)} className="input-f" placeholder="17300" />
-            </div>
-          </div>
-          {netKg > 0 && (
-            <div className="bg-frost-elevated border border-frost-border rounded-xl p-3 flex justify-between items-center">
-              <span className="text-frost-dim text-sm">الوزن الصافي</span>
-              <span className="text-frost-blue font-black">{netKg.toLocaleString()} كغ · {(netKg / 1000).toFixed(2)} طن</span>
-            </div>
-          )}
+      {/* STEP 3: Workers */}
+      {step === 3 && (
+        <div className="space-y-5">
+          <h2 className="text-lg font-black text-frost-steel">👷 العمال</h2>
 
-        </div>
-
-        {/* Workers */}
-        <div className="card space-y-5">
-          <h2 className="text-frost-steel text-sm font-black uppercase tracking-widest">👷 العمال والسائق</h2>
           <div>
-            <label className="label-f">العمال *</label>
-              <div className="flex flex-wrap gap-2">
-                <button type="button" onClick={() => { setNoLoaders(true); setSelectedLoaders([]) }} className={chipGreen(noLoaders)}>بدون عمال</button>
-                {loaders.map(w => (
-                  <button type="button" key={w.id} onClick={() => { setNoLoaders(false); toggleLoader(w.id) }} className={chipGreen(!noLoaders && selectedLoaders.includes(w.id))}>
-                    🏗️ {w.name} (${type === 'in' ? parseFloat(w.rate_loading ?? w.rate) : parseFloat(w.rate_unloading ?? w.rate)}/طن)
-                  </button>
-                ))}
-                <button type="button" onClick={() => nav('/workers/new')} className="text-frost-blue text-sm font-bold flex items-center gap-1"><Plus size={14} /> إضافة</button>
-              </div>
+            <label className="label-f text-base mb-2 block">مين حمّل؟</label>
+            <div className="flex flex-wrap gap-2">
+              <button onClick={() => { setNoLoaders(true); setSelectedLoaders([]) }} className={chipGreen(noLoaders)}>بدون عمال</button>
+              {loaders.map(w => (
+                <button key={w.id} onClick={() => toggleLoader(w.id)} className={chipGreen(!noLoaders && selectedLoaders.includes(w.id))}>
+                  {w.name} (${type === 'in' ? parseFloat(w.rate_loading ?? w.rate) : parseFloat(w.rate_unloading ?? w.rate)}/طن)
+                </button>
+              ))}
+              <button onClick={() => nav('/workers/new')} className="text-frost-blue text-sm font-bold flex items-center gap-1 px-3"><Plus size={14} /></button>
+            </div>
             {selectedLoaders.length > 0 && t > 0 && (
-              <p className="text-green-400 text-xs mt-2 font-semibold">
-                {selectedLoaders.length} عامل × {t} طن = ${loaderCost.toFixed(0)} المجموع
-              </p>
+              <p className="text-green-400 text-sm mt-2 font-bold">{selectedLoaders.length} عامل × {t} طن = ${loaderCost.toFixed(0)}</p>
             )}
           </div>
+
           <div>
-            <label className="label-f">السائق *</label>
-              <div className="flex flex-wrap gap-2">
-                <button type="button" onClick={() => { setNoDriver(true); setSelectedDriver('') }} className={chipOrange(noDriver)}>بدون سائق</button>
-                {drivers.map(w => (
-                  <button type="button" key={w.id} onClick={() => { setNoDriver(false); setSelectedDriver(w.id) }} className={chipOrange(!noDriver && selectedDriver === w.id)}>
-                    🚛 {w.name} (${parseFloat(w.rate)}/رحلة)
-                  </button>
-                ))}
-                <button type="button" onClick={() => nav('/workers/new')} className="text-frost-blue text-sm font-bold flex items-center gap-1"><Plus size={14} /> إضافة</button>
-              </div>
-            {selectedDriver && <p className="text-orange-400 text-xs mt-2 font-semibold">السائق: ${driverCost.toFixed(0)}</p>}
-          </div>
-          {totalLaborCost > 0 && (
-            <div className="bg-frost-elevated border border-frost-border rounded-xl p-3">
-              <div className="flex justify-between text-sm">
-                <span className="text-frost-dim">إجمالي تكلفة العمالة</span>
-                <span className="text-frost-steel font-black">${totalLaborCost.toFixed(0)}</span>
-              </div>
-              {loaderCost > 0 && <div className="flex justify-between text-xs text-frost-dim mt-1"><span>العمال ({selectedLoaders.length})</span><span>${loaderCost.toFixed(0)}</span></div>}
-              {driverCost > 0 && <div className="flex justify-between text-xs text-frost-dim mt-1"><span>السائق</span><span>${driverCost.toFixed(0)}</span></div>}
+            <label className="label-f text-base mb-2 block">مين السائق؟</label>
+            <div className="flex flex-wrap gap-2">
+              <button onClick={() => { setNoDriver(true); setSelectedDriver('') }} className={chipOrange(noDriver)}>بدون سائق</button>
+              {drivers.map(w => (
+                <button key={w.id} onClick={() => { setNoDriver(false); setSelectedDriver(w.id) }} className={chipOrange(!noDriver && selectedDriver === w.id)}>
+                  {w.name} (${parseFloat(w.rate)}/رحلة)
+                </button>
+              ))}
+              <button onClick={() => nav('/workers/new')} className="text-frost-blue text-sm font-bold flex items-center gap-1 px-3"><Plus size={14} /></button>
             </div>
+            {selectedDriver && !noDriver && <p className="text-orange-400 text-sm mt-2 font-bold">السائق: ${driverCost.toFixed(0)}</p>}
+          </div>
+        </div>
+      )}
+
+      {/* STEP 4: Review */}
+      {step === 4 && (
+        <div className="space-y-4">
+          <h2 className="text-lg font-black text-frost-steel">📋 مراجعة</h2>
+          <div className="card space-y-3">
+            <div className="flex justify-between"><span className="text-frost-dim">النوع</span><span className={`font-bold ${type === 'in' ? 'text-green-400' : 'text-red-400'}`}>{type === 'in' ? '▼ إدخال' : '▲ إخراج'}</span></div>
+            <div className="flex justify-between"><span className="text-frost-dim">الزبون</span><span className="text-frost-steel font-bold">{clientName}</span></div>
+            {company && <div className="flex justify-between"><span className="text-frost-dim">الشركة</span><span className="text-frost-steel font-bold">{company}</span></div>}
+            <div className="flex justify-between"><span className="text-frost-dim">الغرفة</span><span className="text-frost-steel font-bold">{roomName}</span></div>
+            <div className="flex justify-between"><span className="text-frost-dim">المنتج</span><span className="text-frost-steel font-bold">{product}</span></div>
+            <div className="flex justify-between"><span className="text-frost-dim">التاريخ</span><span className="text-frost-steel font-bold">{txDate}</span></div>
+            <div className="flex justify-between"><span className="text-frost-dim">الشاحنة</span><span className="text-frost-steel font-bold">{plateNumber}</span></div>
+            <div className="flex justify-between border-t border-frost-border pt-3 mt-2">
+              <span className="text-frost-dim text-lg">الكمية</span>
+              <span className="text-frost-blue font-black text-2xl">{tonnes} طن</span>
+            </div>
+            {(selectedLoaders.length > 0 || selectedDriver) && (
+              <div className="flex justify-between"><span className="text-frost-dim">تكلفة العمالة</span><span className="text-frost-steel font-bold">${(loaderCost + driverCost).toFixed(0)}</span></div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Error */}
+      {error && <p className="text-red-400 text-sm font-bold mt-4 text-center">{error}</p>}
+
+      {/* Navigation buttons - fixed at bottom */}
+      <div className="fixed bottom-20 left-0 right-0 px-4 max-w-lg mx-auto">
+        <div className="flex gap-3">
+          {step > 1 && (
+            <button onClick={prev} className="flex-1 py-3.5 rounded-2xl font-bold border-2 border-frost-border text-frost-dim">
+              السابق
+            </button>
+          )}
+          {step < 4 ? (
+            <button onClick={next} className="flex-1 py-3.5 rounded-2xl font-bold bg-frost-blue text-white text-lg">
+              التالي
+            </button>
+          ) : (
+            <button onClick={submit} disabled={saving} className="flex-1 py-3.5 rounded-2xl font-bold bg-green-500 text-black text-lg flex items-center justify-center gap-2">
+              {saving ? 'جاري الحفظ...' : <><Check size={20} /> تأكيد وحفظ</>}
+            </button>
           )}
         </div>
-
-        {error && <p className="text-red-400 text-sm font-semibold">{error}</p>}
-        <button type="submit" disabled={saving} className="btn-blue w-full">
-          {saving ? 'جاري الحفظ...' : `تسجيل ${type === 'in' ? 'إدخال' : 'إخراج'} — ${tonnes || '0'} طن ${product}`}
-        </button>
-      </form>
+      </div>
     </div>
   )
 }
