@@ -36,7 +36,9 @@ export default function NewTransaction() {
 
   // Workers
   const [selectedLoaders, setSelectedLoaders] = useState<string[]>([])
+  const [noLoaders, setNoLoaders] = useState(false)
   const [selectedDriver, setSelectedDriver] = useState('')
+  const [noDriver, setNoDriver] = useState(false)
   const [clientInventory, setClientInventory] = useState<any[]>([])
 
   useEffect(() => {
@@ -72,8 +74,17 @@ export default function NewTransaction() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!clientId || !roomId || !tonnes) { setError('يرجى ملء جميع الحقول المطلوبة'); return }
-    if (t <= 0) { setError('الكمية يجب أن تكون أكبر من صفر'); return }
+    if (!clientId) { setError('يرجى اختيار الزبون'); return }
+    if (!roomId) { setError('يرجى اختيار الغرفة'); return }
+    if (!product) { setError('يرجى اختيار المنتج'); return }
+    if (!tonnes || t <= 0) { setError('يرجى إدخال الكمية'); return }
+    if (!txDate) { setError('يرجى اختيار التاريخ'); return }
+    if (!ticketRef) { setError('يرجى إدخال رقم المرجع (القبان)'); return }
+    if (!plateNumber) { setError('يرجى إدخال رقم الشاحنة'); return }
+    if (!weightFirst || !weightSecond) { setError('يرجى إدخال الوزنتين'); return }
+    if (!noLoaders && selectedLoaders.length === 0) { setError('يرجى اختيار العمال أو الضغط على "بدون"'); return }
+    if (!noDriver && !selectedDriver) { setError('يرجى اختيار السائق أو الضغط على "بدون"'); return }
+    
     setSaving(true); setError('')
 
     // Re-fetch room for latest data
@@ -132,7 +143,7 @@ export default function NewTransaction() {
     }
 
     // Save worker assignments
-    if (selectedLoaders.length > 0 || selectedDriver) {
+    if ((selectedLoaders.length > 0 && !noLoaders) || (selectedDriver && !noDriver)) {
       const workerRecords = []
       for (const lid of selectedLoaders) {
         const w = workers.find(x => x.id === lid)
@@ -172,7 +183,7 @@ export default function NewTransaction() {
         {/* Client + Room + Product + Tonnes */}
         <div className="card space-y-5">
           <div>
-            <label className="label-f">الزبون</label>
+            <label className="label-f">الزبون *</label>
             <div className="flex flex-wrap gap-2">{clients.map(c => <button type="button" key={c.id} onClick={() => setClientId(c.id)} className={chip(clientId === c.id)}>{c.name}</button>)}</div>
           </div>
 
@@ -185,14 +196,14 @@ export default function NewTransaction() {
           )}
 
           <div>
-            <label className="label-f">الغرفة</label>
+            <label className="label-f">الغرفة *</label>
             <div className="flex flex-wrap gap-2">{rooms.map(r => {
               const pct = Math.round((parseFloat(r.current_tonnes) / parseFloat(r.capacity_tonnes)) * 100)
               return <button type="button" key={r.id} onClick={() => setRoomId(r.id)} className={chip(roomId === r.id)}>{r.name} ({pct}%)</button>
             })}</div>
           </div>
           <div>
-            <label className="label-f">المنتج {type === 'out' && clientId && roomId && availableProducts.length === 0 ? '— لا يوجد مخزون' : ''}</label>
+            <label className="label-f">المنتج * {type === 'out' && clientId && roomId && availableProducts.length === 0 ? '— لا يوجد مخزون' : ''}</label>
             <div className="flex flex-wrap gap-2">
               {(type === 'out' && clientId && roomId ? availableProducts : PRODUCTS).map(p => {
                 const inv = clientInventory.find(i => i.product_type === p)
@@ -208,7 +219,7 @@ export default function NewTransaction() {
           </div>
 
           <div>
-            <label className="label-f">الكمية (طن)</label>
+            <label className="label-f">الكمية (طن) *</label>
             <input type="number" step="0.1" value={tonnes} onChange={e => setTonnes(e.target.value)} className="input-f" placeholder="مثال: 12.5" />
             {type === 'out' && product && clientInventory.find(i => i.product_type === product) && (
               <p className="text-frost-dim text-xs mt-1">المتاح: {parseFloat(clientInventory.find(i => i.product_type === product)?.tonnes ?? 0)} طن</p>
@@ -225,21 +236,21 @@ export default function NewTransaction() {
           <h2 className="text-frost-steel text-sm font-black uppercase tracking-widest">⚖️ بطاقة القبان</h2>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="label-f">المرجع</label>
+              <label className="label-f">المرجع *</label>
               <input value={ticketRef} onChange={e => setTicketRef(e.target.value)} className="input-f" placeholder="231292" />
             </div>
             <div>
-              <label className="label-f">رقم الشاحنة</label>
+              <label className="label-f">رقم الشاحنة *</label>
               <input value={plateNumber} onChange={e => setPlateNumber(e.target.value)} className="input-f" placeholder="338455" />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="label-f">الوزنة الأولى (كغ)</label>
+              <label className="label-f">الوزنة الأولى (كغ) *</label>
               <input type="number" step="1" value={weightFirst} onChange={e => setWeightFirst(e.target.value)} className="input-f" placeholder="5360" />
             </div>
             <div>
-              <label className="label-f">الوزنة الثانية (كغ)</label>
+              <label className="label-f">الوزنة الثانية (كغ) *</label>
               <input type="number" step="1" value={weightSecond} onChange={e => setWeightSecond(e.target.value)} className="input-f" placeholder="17300" />
             </div>
           </div>
@@ -259,21 +270,16 @@ export default function NewTransaction() {
         <div className="card space-y-5">
           <h2 className="text-frost-steel text-sm font-black uppercase tracking-widest">👷 العمال والسائق</h2>
           <div>
-            <label className="label-f">العمال (اختر من عمل)</label>
-            {loaders.length === 0 ? (
-              <div className="flex items-center gap-2">
-                <p className="text-frost-dim text-sm">لا يوجد عمال</p>
-                <button type="button" onClick={() => nav('/workers/new')} className="text-frost-blue text-sm font-bold flex items-center gap-1"><Plus size={14} /> إضافة</button>
-              </div>
-            ) : (
+            <label className="label-f">العمال *</label>
               <div className="flex flex-wrap gap-2">
+                <button type="button" onClick={() => { setNoLoaders(true); setSelectedLoaders([]) }} className={chipGreen(noLoaders)}>بدون عمال</button>
                 {loaders.map(w => (
-                  <button type="button" key={w.id} onClick={() => toggleLoader(w.id)} className={chipGreen(selectedLoaders.includes(w.id))}>
+                  <button type="button" key={w.id} onClick={() => { setNoLoaders(false); toggleLoader(w.id) }} className={chipGreen(!noLoaders && selectedLoaders.includes(w.id))}>
                     🏗️ {w.name} (${parseFloat(w.rate)}/طن)
                   </button>
                 ))}
+                <button type="button" onClick={() => nav('/workers/new')} className="text-frost-blue text-sm font-bold flex items-center gap-1"><Plus size={14} /> إضافة</button>
               </div>
-            )}
             {selectedLoaders.length > 0 && t > 0 && (
               <p className="text-green-400 text-xs mt-2 font-semibold">
                 {selectedLoaders.length} عامل × {t} طن = ${loaderCost.toFixed(0)} المجموع
@@ -281,22 +287,16 @@ export default function NewTransaction() {
             )}
           </div>
           <div>
-            <label className="label-f">السائق (لكل رحلة)</label>
-            {drivers.length === 0 ? (
-              <div className="flex items-center gap-2">
-                <p className="text-frost-dim text-sm">لا يوجد سائقين</p>
-                <button type="button" onClick={() => nav('/workers/new')} className="text-frost-blue text-sm font-bold flex items-center gap-1"><Plus size={14} /> إضافة</button>
-              </div>
-            ) : (
+            <label className="label-f">السائق *</label>
               <div className="flex flex-wrap gap-2">
-                <button type="button" onClick={() => setSelectedDriver('')} className={chipOrange(!selectedDriver)}>بدون</button>
+                <button type="button" onClick={() => { setNoDriver(true); setSelectedDriver('') }} className={chipOrange(noDriver)}>بدون سائق</button>
                 {drivers.map(w => (
-                  <button type="button" key={w.id} onClick={() => setSelectedDriver(w.id)} className={chipOrange(selectedDriver === w.id)}>
+                  <button type="button" key={w.id} onClick={() => { setNoDriver(false); setSelectedDriver(w.id) }} className={chipOrange(!noDriver && selectedDriver === w.id)}>
                     🚛 {w.name} (${parseFloat(w.rate)}/رحلة)
                   </button>
                 ))}
+                <button type="button" onClick={() => nav('/workers/new')} className="text-frost-blue text-sm font-bold flex items-center gap-1"><Plus size={14} /> إضافة</button>
               </div>
-            )}
             {selectedDriver && <p className="text-orange-400 text-xs mt-2 font-semibold">السائق: ${driverCost.toFixed(0)}</p>}
           </div>
           {totalLaborCost > 0 && (
@@ -312,7 +312,7 @@ export default function NewTransaction() {
         </div>
 
         {error && <p className="text-red-400 text-sm font-semibold">{error}</p>}
-        <button type="submit" disabled={saving || !clientId || !roomId || !tonnes} className="btn-blue w-full">
+        <button type="submit" disabled={saving} className="btn-blue w-full">
           {saving ? 'جاري الحفظ...' : `تسجيل ${type === 'in' ? 'إدخال' : 'إخراج'} — ${tonnes || '0'} طن ${product}`}
         </button>
       </form>
