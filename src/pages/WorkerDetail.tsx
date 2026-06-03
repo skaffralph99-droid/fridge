@@ -35,13 +35,13 @@ export default function WorkerDetail() {
           </div>
           <div>
             <h1 className="text-xl font-black text-frost-steel">{worker.name}</h1>
-            <p className="text-frost-dim text-sm capitalize">{worker.role} · ${parseFloat(worker.rate)}/{worker.role === 'driver' ? 'trip' : 'tonne'}</p>
+            <p className="text-frost-dim text-sm">{worker.role === 'driver' ? '🚛 سائق' : '🏗️ عامل تحميل'} · {worker.role === 'driver' ? `$${parseFloat(worker.rate)}/رحلة` : `تحميل $${parseFloat(worker.rate_loading ?? worker.rate)}/طن · تنزيل $${parseFloat(worker.rate_unloading ?? worker.rate)}/طن`}</p>
           </div>
         </div>
         <div className="flex gap-6">
           <div><p className="text-frost-dim text-[10px] uppercase">إجمالي الأرباح</p><p className="text-green-400 font-black text-xl">${totalEarned.toFixed(0)}</p></div>
           <div><p className="text-frost-dim text-[10px] uppercase">الوظائف</p><p className="text-frost-blue font-black text-xl">{jobCount}</p></div>
-          <div><p className="text-frost-dim text-[10px] uppercase">السعر</p><p className="text-frost-steel font-bold text-xl">${parseFloat(worker.rate)}</p></div>
+          <div><p className="text-frost-dim text-[10px] uppercase">{worker.role === 'driver' ? 'سعر الرحلة' : 'سعر التحميل / التنزيل'}</p><p className="text-frost-steel font-bold text-xl">{worker.role === 'driver' ? `$${parseFloat(worker.rate)}` : `$${parseFloat(worker.rate_loading ?? worker.rate)} / $${parseFloat(worker.rate_unloading ?? worker.rate)}`}</p></div>
         </div>
         {worker.phone && (
           <a href={`tel:${worker.phone}`} className="mt-4 block border border-frost-blue text-frost-blue text-center py-2 rounded-lg font-bold text-sm"><Phone size={14} className="inline mr-2" />اتصال</a>

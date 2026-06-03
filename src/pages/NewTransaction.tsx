@@ -28,7 +28,7 @@ export default function NewTransaction() {
   const [plateNumber, setPlateNumber] = useState('')
   const [weightFirst, setWeightFirst] = useState('')
   const [weightSecond, setWeightSecond] = useState('')
-  const [unloadingFee, setUnloadingFee] = useState('')
+  
 
   const wFirst = parseFloat(weightFirst) || 0
   const wSecond = parseFloat(weightSecond) || 0
@@ -63,7 +63,8 @@ export default function NewTransaction() {
   const t = parseFloat(tonnes) || 0
   const loaderCost = selectedLoaders.reduce((sum, id) => {
     const w = workers.find(x => x.id === id)
-    return sum + (w ? parseFloat(w.rate) * t : 0)
+    const r = type === 'in' ? parseFloat(w?.rate_loading ?? w?.rate ?? 0) : parseFloat(w?.rate_unloading ?? w?.rate ?? 0)
+    return sum + r * t
   }, 0)
   const driverCost = selectedDriver ? parseFloat(workers.find(w => w.id === selectedDriver)?.rate ?? 0) : 0
   const totalLaborCost = loaderCost + driverCost
@@ -113,7 +114,7 @@ export default function NewTransaction() {
       tonnes: t, date: txDate, notes: notes || null, recorded_by: user?.id,
        plate_number: plateNumber || null,
       weight_first: wFirst || null, weight_second: wSecond || null,
-      weight_net: netKg || null, unloading_fee: parseFloat(unloadingFee) || 0,
+      weight_net: netKg || null, 
       company: company || null,
     }).select('ticket_no').single()
 
@@ -147,7 +148,7 @@ export default function NewTransaction() {
       const workerRecords = []
       for (const lid of selectedLoaders) {
         const w = workers.find(x => x.id === lid)
-        if (w) workerRecords.push({ transaction_id: tx.id, worker_id: lid, role: 'loader', earnings: parseFloat(w.rate) * t })
+        if (w) { const r = type === 'in' ? parseFloat(w.rate_loading ?? w.rate) : parseFloat(w.rate_unloading ?? w.rate); workerRecords.push({ transaction_id: tx.id, worker_id: lid, role: 'loader', earnings: r * t }) }
       }
       if (selectedDriver) {
         const w = workers.find(x => x.id === selectedDriver)
@@ -260,10 +261,7 @@ export default function NewTransaction() {
               <span className="text-frost-blue font-black">{netKg.toLocaleString()} كغ · {(netKg / 1000).toFixed(2)} طن</span>
             </div>
           )}
-          <div>
-            <label className="label-f">إيجار تنزيل</label>
-            <input type="number" step="0.01" value={unloadingFee} onChange={e => setUnloadingFee(e.target.value)} className="input-f" placeholder="المبلغ" />
-          </div>
+
         </div>
 
         {/* Workers */}
@@ -275,7 +273,7 @@ export default function NewTransaction() {
                 <button type="button" onClick={() => { setNoLoaders(true); setSelectedLoaders([]) }} className={chipGreen(noLoaders)}>بدون عمال</button>
                 {loaders.map(w => (
                   <button type="button" key={w.id} onClick={() => { setNoLoaders(false); toggleLoader(w.id) }} className={chipGreen(!noLoaders && selectedLoaders.includes(w.id))}>
-                    🏗️ {w.name} (${parseFloat(w.rate)}/طن)
+                    🏗️ {w.name} (${type === 'in' ? parseFloat(w.rate_loading ?? w.rate) : parseFloat(w.rate_unloading ?? w.rate)}/طن)
                   </button>
                 ))}
                 <button type="button" onClick={() => nav('/workers/new')} className="text-frost-blue text-sm font-bold flex items-center gap-1"><Plus size={14} /> إضافة</button>

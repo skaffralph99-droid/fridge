@@ -46,7 +46,7 @@ export default function Workers() {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-frost-steel font-semibold truncate">{w.name}</p>
-                <p className="text-frost-dim text-xs capitalize">{w.role} · ${parseFloat(w.rate)}/{w.role === 'driver' ? 'trip' : 'tonne'}</p>
+                <p className="text-frost-dim text-xs">{w.role === 'driver' ? '🚛 سائق' : '🏗️ عامل'} · {w.role === 'driver' ? `$${parseFloat(w.rate)}/رحلة` : `تحميل $${parseFloat(w.rate_loading ?? w.rate)}/طن · تنزيل $${parseFloat(w.rate_unloading ?? w.rate)}/طن`}</p>
               </div>
               <div className="text-right shrink-0">
                 <p className="text-green-400 font-bold text-sm">${(earnings[w.id] ?? 0).toFixed(0)}</p>
