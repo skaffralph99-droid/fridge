@@ -24,7 +24,7 @@ export default function NewTransaction() {
   const [company, setCompany] = useState('')
 
   // Weighbridge ticket
-  const [ticketRef, setTicketRef] = useState('')
+  // ticket_ref is auto-generated from ticket_no sequence
   const [plateNumber, setPlateNumber] = useState('')
   const [weightFirst, setWeightFirst] = useState('')
   const [weightSecond, setWeightSecond] = useState('')
@@ -79,7 +79,7 @@ export default function NewTransaction() {
     if (!product) { setError('يرجى اختيار المنتج'); return }
     if (!tonnes || t <= 0) { setError('يرجى إدخال الكمية'); return }
     if (!txDate) { setError('يرجى اختيار التاريخ'); return }
-    if (!ticketRef) { setError('يرجى إدخال رقم المرجع (القبان)'); return }
+    // ticket_ref auto-generated
     if (!plateNumber) { setError('يرجى إدخال رقم الشاحنة'); return }
     if (!weightFirst || !weightSecond) { setError('يرجى إدخال الوزنتين'); return }
     if (!noLoaders && selectedLoaders.length === 0) { setError('يرجى اختيار العمال أو الضغط على "بدون"'); return }
@@ -111,7 +111,7 @@ export default function NewTransaction() {
     const { data: tx, error: txErr } = await supabase.from('fridge_transactions').insert({
       client_id: clientId, room_id: roomId, type, product_type: product,
       tonnes: t, date: txDate, notes: notes || null, recorded_by: user?.id,
-      ticket_ref: ticketRef || null, plate_number: plateNumber || null,
+       plate_number: plateNumber || null,
       weight_first: wFirst || null, weight_second: wSecond || null,
       weight_net: netKg || null, unloading_fee: parseFloat(unloadingFee) || 0,
       company: company || null,
@@ -236,8 +236,8 @@ export default function NewTransaction() {
           <h2 className="text-frost-steel text-sm font-black uppercase tracking-widest">⚖️ بطاقة القبان</h2>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="label-f">المرجع *</label>
-              <input value={ticketRef} onChange={e => setTicketRef(e.target.value)} className="input-f" placeholder="231292" />
+              <label className="label-f">المرجع</label>
+              <div className="input-f bg-frost-elevated text-frost-dim cursor-not-allowed">تلقائي — يُحدد عند الحفظ</div>
             </div>
             <div>
               <label className="label-f">رقم الشاحنة *</label>
