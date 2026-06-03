@@ -1,6 +1,5 @@
 import { useLang } from '../lib/i18n'
 import { useEffect, useState } from 'react'
-  const { tr, dir } = useLang()
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { Plus, Search } from 'lucide-react'
@@ -8,6 +7,7 @@ import { Plus, Search } from 'lucide-react'
 const ICON: Record<string, string> = { farmer: '🌾', factory: '🏭', distributor: '🚚', other: '📦' }
 
 export default function Clients() {
+  const { tr, dir } = useLang()
   const [clients, setClients] = useState<any[]>([])
   const [search, setSearch] = useState('')
   useEffect(() => { supabase.from('fridge_clients').select('*').order('name').then(({ data }) => setClients(data ?? [])) }, [])

@@ -1,6 +1,5 @@
 import { useLang } from '../lib/i18n'
 import { useEffect, useState } from 'react'
-  const { tr, dir } = useLang()
 import { Link } from 'react-router-dom'
 import { format } from 'date-fns'
 import { supabase } from '../lib/supabase'
@@ -8,6 +7,7 @@ import { useAuth } from '../context/AuthContext'
 import { LogOut, Plus, TrendingUp, ChevronRight } from 'lucide-react'
 
 export default function Dashboard() {
+  const { tr, dir } = useLang()
   const { signOut } = useAuth()
   const [rooms, setRooms] = useState<any[]>([])
   const [clientCount, setClientCount] = useState(0)

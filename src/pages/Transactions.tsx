@@ -1,12 +1,12 @@
 import { useLang } from '../lib/i18n'
 import { useEffect, useState } from 'react'
-  const { tr, dir } = useLang()
 import { Link } from 'react-router-dom'
 import { format } from 'date-fns'
 import { supabase } from '../lib/supabase'
 import { Plus } from 'lucide-react'
 
 export default function Transactions() {
+  const { tr, dir } = useLang()
   const [txns, setTxns] = useState<any[]>([])
   useEffect(() => {
     supabase.from('fridge_transactions')

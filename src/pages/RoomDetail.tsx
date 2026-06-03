@@ -1,12 +1,12 @@
 import { useLang } from '../lib/i18n'
 import { useEffect, useState } from 'react'
-  const { tr, dir } = useLang()
 import { useParams, Link } from 'react-router-dom'
 import { format } from 'date-fns'
 import { supabase } from '../lib/supabase'
 import { ArrowLeft } from 'lucide-react'
 
 export default function RoomDetail() {
+  const { tr, dir } = useLang()
   const { id } = useParams()
   const [room, setRoom] = useState<any>(null)
   const [inventory, setInventory] = useState<any[]>([])

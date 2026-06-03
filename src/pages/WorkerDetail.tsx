@@ -1,12 +1,12 @@
 import { useLang } from '../lib/i18n'
 import { useEffect, useState } from 'react'
-  const { tr, dir } = useLang()
 import { useParams, Link } from 'react-router-dom'
 import { format } from 'date-fns'
 import { supabase } from '../lib/supabase'
 import { ArrowLeft, Phone, HardHat, Truck } from 'lucide-react'
 
 export default function WorkerDetail() {
+  const { tr, dir } = useLang()
   const { id } = useParams()
   const [worker, setWorker] = useState<any>(null)
   const [jobs, setJobs] = useState<any[]>([])

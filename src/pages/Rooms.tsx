@@ -1,10 +1,10 @@
 import { useLang } from '../lib/i18n'
 import { useEffect, useState } from 'react'
-  const { tr, dir } = useLang()
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 
 export default function Rooms() {
+  const { tr, dir } = useLang()
   const [rooms, setRooms] = useState<any[]>([])
   useEffect(() => { supabase.from('fridge_rooms').select('*').order('name').then(({ data }) => { if (data) setRooms(data) }) }, [])
 

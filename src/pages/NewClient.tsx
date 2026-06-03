@@ -8,8 +8,8 @@ const TYPES = ['farmer', 'factory', 'distributor', 'other']
 const TERMS = ['monthly', 'seasonal', 'lump_sum']
 
 export default function NewClient() {
-  const nav = useNavigate()
   const { tr, dir } = useLang()
+  const nav = useNavigate()
   const [name, setName] = useState(''); const [phone, setPhone] = useState('')
   const [company, setCompany] = useState(''); const [whatsapp, setWhatsapp] = useState('')
   const [type, setType] = useState('farmer'); const [rate, setRate] = useState('45')

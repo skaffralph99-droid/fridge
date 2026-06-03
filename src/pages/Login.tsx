@@ -1,12 +1,12 @@
 import { useLang } from '../lib/i18n'
 import { useState, useEffect } from 'react'
-  const { tr, dir } = useLang()
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import { Snowflake } from 'lucide-react'
 
 export default function Login() {
+  const { tr, dir } = useLang()
   const { signIn, user } = useAuth()
   const navigate = useNavigate()
   const [email, setEmail] = useState('')

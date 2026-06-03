@@ -1,11 +1,11 @@
 import { useLang } from '../lib/i18n'
 import { useEffect, useState } from 'react'
-  const { tr, dir } = useLang()
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { Plus, Search, HardHat, Truck } from 'lucide-react'
 
 export default function Workers() {
+  const { tr, dir } = useLang()
   const [workers, setWorkers] = useState<any[]>([])
   const [earnings, setEarnings] = useState<Record<string, number>>({})
   const [search, setSearch] = useState('')

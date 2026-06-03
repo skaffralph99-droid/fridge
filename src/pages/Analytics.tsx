@@ -1,6 +1,5 @@
 import { useLang } from '../lib/i18n'
 import { useEffect, useState } from 'react'
-  const { tr, dir } = useLang()
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { ArrowLeft, TrendingDown } from 'lucide-react'
@@ -9,6 +8,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pi
 const COLORS = ['#3B82F6', '#22D3EE', '#34D399', '#FBBF24', '#F97316', '#EF4444', '#A78BFA']
 
 export default function Analytics() {
+  const { tr, dir } = useLang()
   const [rooms, setRooms] = useState<any[]>([])
   const [clients, setClients] = useState<any[]>([])
   const [inventory, setInventory] = useState<any[]>([])

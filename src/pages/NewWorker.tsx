@@ -5,8 +5,8 @@ import { supabase } from '../lib/supabase'
 import { ArrowLeft } from 'lucide-react'
 
 export default function NewWorker() {
-  const nav = useNavigate()
   const { tr, dir } = useLang()
+  const nav = useNavigate()
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [role, setRole] = useState<'loader' | 'driver'>('loader')

@@ -6,8 +6,8 @@ import { supabase } from '../lib/supabase'
 import { ArrowLeft, Calculator } from 'lucide-react'
 
 export default function NewInvoice() {
-  const nav = useNavigate()
   const { tr, dir } = useLang()
+  const nav = useNavigate()
   const [clients, setClients] = useState<any[]>([])
   const [clientId, setClientId] = useState('')
   const [periodStart, setPeriodStart] = useState(format(new Date(new Date().getFullYear(), new Date().getMonth(), 1), 'yyyy-MM-dd'))
