@@ -8,45 +8,62 @@ import { Plus } from 'lucide-react'
 export default function Invoices() {
   const { tr, dir } = useLang()
   const [invoices, setInvoices] = useState<any[]>([])
-  useEffect(() => { supabase.from('fridge_invoices').select('*, fridge_clients(name)').order('created_at', { ascending: false }).then(({ data }) => setInvoices(data ?? [])) }, [])
+  useEffect(() => {
+    supabase.from('fridge_invoices').select('*, fridge_clients(name)')
+      .order('created_at', { ascending: false })
+      .then(({ data }) => setInvoices(data ?? []))
+  }, [])
 
-  const markPaid = async (id: string) => {
-    await supabase.from('fridge_invoices').update({ status: 'paid', paid_date: new Date().toISOString().split('T')[0] }).eq('id', id)
-    setInvoices(prev => prev.map(i => i.id === id ? { ...i, status: 'paid' } : i))
-  }
-
-  const sColor: Record<string, string> = { paid: 'text-green-400 border-green-800', pending: 'text-yellow-300 border-yellow-800', overdue: 'text-red-400 border-red-800' }
+  const total = invoices.reduce((s, i) => s + parseFloat(i.amount), 0)
+  const paid = invoices.filter(i => i.status === 'paid').reduce((s, i) => s + parseFloat(i.amount), 0)
+  const pending = total - paid
 
   return (
-    <div className="p-5 max-w-lg mx-auto">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-xl font-black text-frost-steel">{tr('invoices')}</h1>
-        <Link to="/invoices/new" className="bg-frost-blue text-white rounded-xl px-4 py-2.5 text-sm font-semibold flex items-center gap-1"><Plus size={15} />جديد</Link>
+    <div dir={dir} className="p-5 max-w-lg mx-auto">
+      <div className="flex justify-between items-center mb-5">
+        <h1 className="text-xl font-black text-frost-steel">الفواتير</h1>
+        <Link to="/invoices/new" className="bg-frost-blue text-white rounded-2xl px-4 py-2.5 text-sm font-bold flex items-center gap-1 active:scale-95"><Plus size={15} /> جديد</Link>
       </div>
+
+      {/* Summary */}
+      {invoices.length > 0 && (
+        <div className="grid grid-cols-3 gap-3 mb-5">
+          <div className="bg-frost-elevated rounded-2xl p-3 text-center">
+            <p className="text-frost-dim text-[9px] uppercase font-bold">المجموع</p>
+            <p className="text-frost-steel font-black text-lg">${total.toLocaleString()}</p>
+          </div>
+          <div className="bg-green-500/10 rounded-2xl p-3 text-center">
+            <p className="text-green-400 text-[9px] uppercase font-bold">مدفوع</p>
+            <p className="text-green-400 font-black text-lg">${paid.toLocaleString()}</p>
+          </div>
+          <div className="bg-yellow-500/10 rounded-2xl p-3 text-center">
+            <p className="text-yellow-400 text-[9px] uppercase font-bold">معلّق</p>
+            <p className="text-yellow-400 font-black text-lg">${pending.toLocaleString()}</p>
+          </div>
+        </div>
+      )}
 
       {invoices.length === 0 ? (
         <p className="text-frost-dim text-center py-12">لا توجد فواتير بعد</p>
       ) : (
         <div className="space-y-3">
           {invoices.map(inv => (
-            <div key={inv.id} className="card">
-              <div className="flex justify-between items-start mb-2">
-                <div>
-                  <p className="text-frost-steel font-semibold">{inv.fridge_clients?.name}</p>
-                  <p className="text-frost-dim text-xs mt-1">{format(new Date(inv.period_start), 'MMM dd')} – {format(new Date(inv.period_end), 'MMM dd, yyyy')}</p>
-                  <p className="text-frost-dim text-xs">{parseFloat(inv.total_tonnes)}t × ${parseFloat(inv.rate)}/t</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-frost-steel font-black text-lg">${parseFloat(inv.amount).toLocaleString()}</p>
-                  <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full border ${sColor[inv.status] ?? 'text-frost-dim border-frost-border'}`}>{inv.status}</span>
-                </div>
+            <Link to={`/invoices/${inv.id}`} key={inv.id} className="card flex items-center gap-4 hover:border-frost-blue transition-colors active:scale-[0.99]">
+              <div className={`w-11 h-11 rounded-xl flex items-center justify-center text-lg shrink-0 ${inv.status === 'paid' ? 'bg-green-500/15 text-green-400' : 'bg-yellow-500/15 text-yellow-400'}`}>
+                {inv.status === 'paid' ? '✓' : '$'}
               </div>
-              {inv.status !== 'paid' && (
-                <button onClick={() => markPaid(inv.id)} className="w-full mt-2 border border-green-700 text-green-400 rounded-xl py-2.5 font-semibold text-sm hover:bg-green-500/10 transition-colors">
-                  ✓ {tr('markPaid')}
-                </button>
-              )}
-            </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-frost-steel font-bold truncate">{inv.fridge_clients?.name}</p>
+                <p className="text-frost-dim text-xs">{format(new Date(inv.period_start), 'dd/MM')} — {format(new Date(inv.period_end), 'dd/MM/yyyy')}</p>
+                <p className="text-frost-dim text-[10px]">{parseFloat(inv.total_tonnes)}t × ${parseFloat(inv.rate)}/t</p>
+              </div>
+              <div className="text-left shrink-0">
+                <p className="text-frost-steel font-black text-lg">${parseFloat(inv.amount).toLocaleString()}</p>
+                <p className={`text-[10px] font-bold ${inv.status === 'paid' ? 'text-green-400' : 'text-yellow-400'}`}>
+                  {inv.status === 'paid' ? 'مدفوعة' : 'معلّقة'}
+                </p>
+              </div>
+            </Link>
           ))}
         </div>
       )}

@@ -137,7 +137,7 @@ export default function NewInvoice() {
 
         {error && <p className="text-red-400 text-sm font-semibold">{error}</p>}
         <button type="submit" disabled={saving || !clientId || amount <= 0} className="btn-blue">
-          {saving ? 'جاري الإنشاء...' : `Create Invoice — $${amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
+          {saving ? 'جاري الإنشاء...' : `إنشاء فاتورة — $${amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
         </button>
       </form>
     </div>

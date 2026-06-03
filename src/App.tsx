@@ -17,6 +17,7 @@ import Workers from './pages/Workers'
 import NewWorker from './pages/NewWorker'
 import WorkerDetail from './pages/WorkerDetail'
 import NewInvoice from './pages/NewInvoice'
+import InvoiceDetail from './pages/InvoiceDetail'
 import TransactionDetail from './pages/TransactionDetail'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -42,6 +43,7 @@ export default function App() {
             <Route path="/clients/new" element={<NewClient />} />
             <Route path="/clients/:id" element={<ClientDetail />} />
             <Route path="/invoices" element={<Invoices />} />
+            <Route path="/invoices/:id" element={<InvoiceDetail />} />
             <Route path="/invoices/new" element={<NewInvoice />} />
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/workers" element={<Workers />} />
