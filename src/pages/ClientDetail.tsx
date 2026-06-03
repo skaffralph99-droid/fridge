@@ -36,13 +36,13 @@ export default function ClientDetail() {
         </div>
         <div className="flex gap-3 mt-4">
           {(client.whatsapp || client.phone) && <a href={`https://wa.me/${(client.whatsapp || client.phone)?.replace(/[^0-9]/g, '')}`} className="flex-1 bg-green-600 text-white text-center py-2 rounded-lg font-bold text-sm flex items-center justify-center gap-2"><MessageCircle size={16} /> WhatsApp</a>}
-          {client.phone && <a href={`tel:${client.phone}`} className="flex-1 border border-frost-blue text-frost-blue text-center py-2 rounded-lg font-bold text-sm flex items-center justify-center gap-2"><Phone size={16} /> Call</a>}
+          {client.phone && <a href={`tel:${client.phone}`} className="flex-1 border border-frost-blue text-frost-blue text-center py-2 rounded-lg font-bold text-sm flex items-center justify-center gap-2"><Phone size={16} />اتصال</a>}
         </div>
       </div>
 
       <h2 className="text-frost-steel text-xs font-black uppercase tracking-widest mb-3">مخزّن</h2>
       {inventory.length === 0 ? <p className="text-frost-dim text-sm">لا يوجد مخزون</p> : inventory.map(inv => (
-        <div key={inv.id} className="card mb-2 flex justify-between"><div><p className="text-frost-steel text-sm font-semibold">{inv.product_type}</p><p className="text-frost-dim text-xs">{inv.fridge_rooms?.name} · since {format(new Date(inv.date_in), 'MMM dd')}</p></div><p className="text-frost-blue font-black">{inv.tonnes}t</p></div>
+        <div key={inv.id} className="card mb-2 flex justify-between"><div><p className="text-frost-steel text-sm font-semibold">{inv.product_type}</p><p className="text-frost-dim text-xs">{inv.fridge_rooms?.name} · منذ {format(new Date(inv.date_in), 'MMM dd')}</p></div><p className="text-frost-blue font-black">{inv.tonnes}t</p></div>
       ))}
 
       <h2 className="text-frost-steel text-xs font-black uppercase tracking-widest mb-3 mt-6">السجل</h2>

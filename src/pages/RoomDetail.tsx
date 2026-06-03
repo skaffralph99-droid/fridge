@@ -48,7 +48,7 @@ export default function RoomDetail() {
         <div key={inv.id} className="card mb-2 flex justify-between items-center">
           <div>
             <p className="text-frost-steel font-semibold text-sm">{inv.fridge_clients?.name}</p>
-            <p className="text-frost-dim text-xs">{inv.product_type} · since {format(new Date(inv.date_in), 'MMM dd')}</p>
+            <p className="text-frost-dim text-xs">{inv.product_type} · منذ {format(new Date(inv.date_in), 'MMM dd')}</p>
           </div>
           <p className="text-frost-blue font-black">{inv.tonnes}t</p>
         </div>

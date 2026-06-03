@@ -110,7 +110,7 @@ export default function Dashboard() {
           {recentTx.map(tx => (
             <Link to={`/transactions/${tx.id}`} key={tx.id} className="card flex items-center gap-3 py-3 hover:border-frost-blue transition-colors">
               <span className={`text-[10px] font-black px-2 py-1 rounded-md ${tx.type === 'in' ? 'bg-green-500/15 text-green-400' : 'bg-red-500/15 text-red-400'}`}>
-                {tx.type === 'in' ? 'IN' : 'OUT'}
+                {tx.type === 'in' ? 'إدخال' : 'إخراج'}
               </span>
               <div className="flex-1 min-w-0">
                 <p className="text-frost-steel text-sm font-medium truncate">{tx.fridge_clients?.name}</p>

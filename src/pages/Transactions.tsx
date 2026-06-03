@@ -19,7 +19,7 @@ export default function Transactions() {
     <div className="p-5 max-w-lg mx-auto">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-xl font-black text-frost-steel">{tr('transactions')}</h1>
-        <Link to="/transactions/new" className="bg-frost-blue text-white rounded-xl px-4 py-2.5 text-sm font-semibold flex items-center gap-1"><Plus size={15} /> New</Link>
+        <Link to="/transactions/new" className="bg-frost-blue text-white rounded-xl px-4 py-2.5 text-sm font-semibold flex items-center gap-1"><Plus size={15} />جديد</Link>
       </div>
 
       {txns.length === 0 ? (
@@ -29,7 +29,7 @@ export default function Transactions() {
           {txns.map(tx => (
             <Link to={`/transactions/${tx.id}`} key={tx.id} className="card flex items-center gap-3 py-3 hover:border-frost-blue transition-colors">
               <span className={`text-[10px] font-bold px-2.5 py-1.5 rounded-lg shrink-0 ${tx.type === 'in' ? 'bg-green-500/12 text-green-400' : 'bg-red-500/12 text-red-400'}`}>
-                {tx.type === 'in' ? '▼ IN' : '▲ OUT'}
+                {tx.type === 'in' ? '▼ إدخال' : '▲ إخراج'}
               </span>
               <div className="flex-1 min-w-0">
                 <p className="text-frost-steel text-sm font-medium truncate">{tx.fridge_clients?.name}</p>

@@ -18,7 +18,7 @@ export default function Clients() {
     <div className="p-5 max-w-lg mx-auto">
       <div className="flex justify-between items-center mb-5">
         <h1 className="text-xl font-black text-frost-steel">{tr('clients')}</h1>
-        <Link to="/clients/new" className="bg-frost-blue text-white rounded-xl px-4 py-2.5 text-sm font-semibold flex items-center gap-1"><Plus size={15} /> New</Link>
+        <Link to="/clients/new" className="bg-frost-blue text-white rounded-xl px-4 py-2.5 text-sm font-semibold flex items-center gap-1"><Plus size={15} />جديد</Link>
       </div>
 
       <div className="relative mb-5">

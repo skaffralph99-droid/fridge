@@ -21,12 +21,12 @@ export default function WorkerDetail() {
 
   if (!worker) return <div className="flex items-center justify-center h-64"><div className="w-10 h-10 border-4 border-frost-blue border-t-transparent rounded-full animate-spin" /></div>
 
-  const totalEarned = jobs.reduce((s, j) => s + parseFloat(j.amount), 0)
+  const totalEarned = jobs.reduce((s, j) => s + parseFloat(j.earnings), 0)
   const jobCount = jobs.length
 
   return (
     <div dir={dir} className="p-4 max-w-lg mx-auto">
-      <Link to="/workers" className="text-frost-blue text-sm font-bold flex items-center gap-1 mb-4"><ArrowLeft size={16} /> Workers</Link>
+      <Link to="/workers" className="text-frost-blue text-sm font-bold flex items-center gap-1 mb-4"><ArrowLeft size={16} />العمال</Link>
 
       <div className="card mb-4">
         <div className="flex items-center gap-3 mb-4">
@@ -63,7 +63,7 @@ export default function WorkerDetail() {
                 </p>
                 <p className="text-frost-dim text-[11px] mt-1">📅 {tx?.date ? format(new Date(tx.date), 'MMM dd, yyyy') : '—'}</p>
               </div>
-              <p className="text-green-400 font-black">${parseFloat(j.amount).toFixed(0)}</p>
+              <p className="text-green-400 font-black">${parseFloat(j.earnings).toFixed(0)}</p>
             </div>
           </div>
         )

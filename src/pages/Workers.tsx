@@ -12,9 +12,9 @@ export default function Workers() {
 
   useEffect(() => {
     supabase.from('fridge_workers').select('*').order('name').then(({ data }) => setWorkers(data ?? []))
-    supabase.from('fridge_transaction_workers').select('worker_id, amount').then(({ data }) => {
+    supabase.from('fridge_transaction_workers').select('worker_id, earnings').then(({ data }) => {
       const map: Record<string, number> = {}
-      data?.forEach(tw => { map[tw.worker_id] = (map[tw.worker_id] ?? 0) + parseFloat(tw.amount) })
+      data?.forEach(tw => { map[tw.worker_id] = (map[tw.worker_id] ?? 0) + parseFloat(tw.earnings) })
       setEarnings(map)
     })
   }, [])
@@ -25,7 +25,7 @@ export default function Workers() {
     <div className="p-5 max-w-lg mx-auto">
       <div className="flex justify-between items-center mb-5">
         <h1 className="text-xl font-black text-frost-steel">{tr('workers')}</h1>
-        <Link to="/workers/new" className="bg-frost-blue text-white rounded-xl px-4 py-2.5 text-sm font-semibold flex items-center gap-1"><Plus size={15} /> New</Link>
+        <Link to="/workers/new" className="bg-frost-blue text-white rounded-xl px-4 py-2.5 text-sm font-semibold flex items-center gap-1"><Plus size={15} />جديد</Link>
       </div>
 
       {workers.length > 3 && (

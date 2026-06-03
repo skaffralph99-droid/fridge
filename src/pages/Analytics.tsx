@@ -22,10 +22,10 @@ export default function Analytics() {
       supabase.from('fridge_clients').select('*').eq('is_active', true),
       supabase.from('fridge_inventory').select('*, fridge_clients(name, rate_per_tonne)').gt('tonnes', 0),
       supabase.from('fridge_invoices').select('*'),
-      supabase.from('fridge_transaction_workers').select('amount'),
+      supabase.from('fridge_transaction_workers').select('earnings'),
     ]).then(([{ data: r }, { data: c }, { data: inv }, { data: invoic }, { data: tw }]) => {
       setRooms(r ?? []); setClients(c ?? []); setInventory(inv ?? []); setInvoices(invoic ?? [])
-      setWorkerCosts(tw?.reduce((s, w) => s + parseFloat(w.amount), 0) ?? 0)
+      setWorkerCosts(tw?.reduce((s, w) => s + parseFloat(w.earnings), 0) ?? 0)
       setLoading(false)
     })
   }, [])
@@ -56,7 +56,7 @@ export default function Analytics() {
 
   return (
     <div className="p-5 max-w-lg mx-auto">
-      <Link to="/" className="text-frost-blue text-sm font-semibold flex items-center gap-1 mb-6"><ArrowLeft size={16} /> Back</Link>
+      <Link to="/" className="text-frost-blue text-sm font-semibold flex items-center gap-1 mb-6"><ArrowLeft size={16} />رجوع</Link>
 
       {/* Revenue gauge */}
       <div className="card mb-5">

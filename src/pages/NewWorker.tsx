@@ -28,12 +28,12 @@ export default function NewWorker() {
     if (role === 'loader' && (!rateLoading || !rateUnloading)) { setError('يرجى إدخال سعر التحميل والتنزيل'); return }
     if (role === 'driver' && !rateDriver) { setError('يرجى إدخال سعر الرحلة'); return }
     setSaving(true)
-    const { error: err } = await supabase.from('fridge_workers').insert({
+    const { data, error: err } = await supabase.from('fridge_workers').insert({
       name: name.trim(), phone: phone || null, role,
       rate: role === 'driver' ? parseFloat(rateDriver) : parseFloat(rateLoading),
       rate_loading: role === 'loader' ? parseFloat(rateLoading) : 0,
       rate_unloading: role === 'loader' ? parseFloat(rateUnloading) : 0,
-    })
+    }).select().single()
     setSaving(false)
     if (err) { setError(err.message); return }
     fromTx ? nav('/transactions/new') : nav('/workers')
