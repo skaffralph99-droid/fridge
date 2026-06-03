@@ -17,6 +17,7 @@ import Workers from './pages/Workers'
 import NewWorker from './pages/NewWorker'
 import WorkerDetail from './pages/WorkerDetail'
 import NewInvoice from './pages/NewInvoice'
+import TransactionDetail from './pages/TransactionDetail'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth()
