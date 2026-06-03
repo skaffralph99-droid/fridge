@@ -41,6 +41,17 @@ export default function NewTransaction() {
 
   const [notes, setNotes] = useState('')
   const [saving, setSaving] = useState(false)
+  const [showAddClient, setShowAddClient] = useState(false)
+  const [showAddWorker, setShowAddWorker] = useState(false)
+  const [newClientName, setNewClientName] = useState('')
+  const [newClientPhone, setNewClientPhone] = useState('')
+  const [newWorkerName, setNewWorkerName] = useState('')
+  const [newWorkerPhone, setNewWorkerPhone] = useState('')
+  const [newWorkerRole, setNewWorkerRole] = useState<'loader'|'driver'>('loader')
+  const [newWorkerRateL, setNewWorkerRateL] = useState('')
+  const [newWorkerRateU, setNewWorkerRateU] = useState('')
+  const [newWorkerRateD, setNewWorkerRateD] = useState('')
+  const [addingSaving, setAddingSaving] = useState(false)
   const [error, setError] = useState('')
 
   // Inventory for OUT
@@ -72,6 +83,38 @@ export default function NewTransaction() {
   const toggleLoader = (id: string) => {
     setNoLoaders(false)
     setSelectedLoaders(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
+  }
+
+  const addClient = async () => {
+    if (!newClientName.trim()) return
+    setAddingSaving(true)
+    const { data } = await supabase.from('fridge_clients').insert({
+      name: newClientName.trim(), phone: newClientPhone || null, is_active: true, rate: 0
+    }).select().single()
+    if (data) {
+      setClients(prev => [...prev, data].sort((a,b) => a.name.localeCompare(b.name)))
+      setClientId(data.id)
+    }
+    setNewClientName(''); setNewClientPhone('')
+    setShowAddClient(false); setAddingSaving(false)
+  }
+
+  const addWorker = async () => {
+    if (!newWorkerName.trim()) return
+    setAddingSaving(true)
+    const rate = newWorkerRole === 'driver' ? parseFloat(newWorkerRateD) || 0 : parseFloat(newWorkerRateL) || 0
+    const { data } = await supabase.from('fridge_workers').insert({
+      name: newWorkerName.trim(), phone: newWorkerPhone || null,
+      role: newWorkerRole, rate,
+      rate_loading: newWorkerRole === 'loader' ? parseFloat(newWorkerRateL) || 0 : 0,
+      rate_unloading: newWorkerRole === 'loader' ? parseFloat(newWorkerRateU) || 0 : 0,
+      is_active: true,
+    }).select().single()
+    if (data) {
+      setWorkers(prev => [...prev, data].sort((a,b) => a.name.localeCompare(b.name)))
+    }
+    setNewWorkerName(''); setNewWorkerPhone(''); setNewWorkerRateL(''); setNewWorkerRateU(''); setNewWorkerRateD('')
+    setShowAddWorker(false); setAddingSaving(false)
   }
 
   const clientName = clients.find(c => c.id === clientId)?.name ?? ''
@@ -192,7 +235,7 @@ export default function NewTransaction() {
             <label className="label-f text-base mb-2 block">من الزبون؟</label>
             <div className="flex flex-wrap gap-2">
               {clients.map(c => <button key={c.id} onClick={() => setClientId(c.id)} className={chip(clientId === c.id)}>{c.name}</button>)}
-              <button onClick={() => nav('/clients/new')} className="text-frost-blue text-sm font-bold flex items-center gap-1 px-3"><Plus size={14} /></button>
+              <button onClick={() => setShowAddClient(true)} className="text-frost-blue text-sm font-bold flex items-center gap-1 px-3"><Plus size={14} /></button>
             </div>
           </div>
 
@@ -277,7 +320,7 @@ export default function NewTransaction() {
                   {w.name} (${type === 'in' ? parseFloat(w.rate_loading ?? w.rate) : parseFloat(w.rate_unloading ?? w.rate)}/طن)
                 </button>
               ))}
-              <button onClick={() => nav('/workers/new')} className="text-frost-blue text-sm font-bold flex items-center gap-1 px-3"><Plus size={14} /></button>
+              <button onClick={() => { setNewWorkerRole('loader'); setShowAddWorker(true) }} className="text-frost-blue text-sm font-bold flex items-center gap-1 px-3"><Plus size={14} /></button>
             </div>
             {selectedLoaders.length > 0 && t > 0 && (
               <p className="text-green-400 text-sm mt-2 font-bold">{selectedLoaders.length} عامل × {t} طن = ${loaderCost.toFixed(0)}</p>
@@ -293,7 +336,7 @@ export default function NewTransaction() {
                   {w.name} (${parseFloat(w.rate)}/رحلة)
                 </button>
               ))}
-              <button onClick={() => nav('/workers/new')} className="text-frost-blue text-sm font-bold flex items-center gap-1 px-3"><Plus size={14} /></button>
+              <button onClick={() => { setNewWorkerRole('driver'); setShowAddWorker(true) }} className="text-frost-blue text-sm font-bold flex items-center gap-1 px-3"><Plus size={14} /></button>
             </div>
             {selectedDriver && !noDriver && <p className="text-orange-400 text-sm mt-2 font-bold">السائق: ${driverCost.toFixed(0)}</p>}
           </div>
@@ -345,6 +388,50 @@ export default function NewTransaction() {
           )}
         </div>
       </div>
+      {/* Add Client Modal */}
+      {showAddClient && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-end justify-center" onClick={() => setShowAddClient(false)}>
+          <div className="bg-frost-dark w-full max-w-lg rounded-t-3xl p-6 space-y-4" dir="rtl" onClick={e => e.stopPropagation()}>
+            <h2 className="text-lg font-black text-frost-steel">زبون جديد</h2>
+            <input value={newClientName} onChange={e => setNewClientName(e.target.value)} className="input-f" placeholder="الاسم" autoFocus />
+            <input value={newClientPhone} onChange={e => setNewClientPhone(e.target.value)} className="input-f" placeholder="الهاتف (اختياري)" />
+            <button onClick={addClient} disabled={addingSaving || !newClientName.trim()} className="btn-blue w-full">
+              {addingSaving ? 'جاري الإضافة...' : 'إضافة'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Add Worker Modal */}
+      {showAddWorker && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-end justify-center" onClick={() => setShowAddWorker(false)}>
+          <div className="bg-frost-dark w-full max-w-lg rounded-t-3xl p-6 space-y-4" dir="rtl" onClick={e => e.stopPropagation()}>
+            <h2 className="text-lg font-black text-frost-steel">{newWorkerRole === 'driver' ? 'سائق جديد' : 'عامل جديد'}</h2>
+            <input value={newWorkerName} onChange={e => setNewWorkerName(e.target.value)} className="input-f" placeholder="الاسم" autoFocus />
+            <input value={newWorkerPhone} onChange={e => setNewWorkerPhone(e.target.value)} className="input-f" placeholder="الهاتف (اختياري)" />
+            {newWorkerRole === 'loader' ? (
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="label-f">سعر التحميل ($/طن)</label>
+                  <input type="number" step="0.5" value={newWorkerRateL} onChange={e => setNewWorkerRateL(e.target.value)} className="input-f" placeholder="2" />
+                </div>
+                <div>
+                  <label className="label-f">سعر التنزيل ($/طن)</label>
+                  <input type="number" step="0.5" value={newWorkerRateU} onChange={e => setNewWorkerRateU(e.target.value)} className="input-f" placeholder="3" />
+                </div>
+              </div>
+            ) : (
+              <div>
+                <label className="label-f">سعر الرحلة ($)</label>
+                <input type="number" step="0.5" value={newWorkerRateD} onChange={e => setNewWorkerRateD(e.target.value)} className="input-f" placeholder="50" />
+              </div>
+            )}
+            <button onClick={addWorker} disabled={addingSaving || !newWorkerName.trim()} className="btn-blue w-full">
+              {addingSaving ? 'جاري الإضافة...' : 'إضافة'}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
