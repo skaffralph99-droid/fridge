@@ -18,7 +18,7 @@ export default function Dashboard() {
     Promise.all([
       supabase.from('fridge_rooms').select('*').eq('is_active', true).order('name'),
       supabase.from('fridge_clients').select('*', { count: 'exact', head: true }).eq('is_active', true),
-      supabase.from('fridge_transactions').select('*, fridge_clients(name), fridge_rooms(name)').order('created_at', { ascending: false }).limit(4),
+      supabase.from('fridge_transactions').select('*, fridge_clients(name), fridge_rooms(name), fridge_transaction_workers(earnings, fridge_workers(name))').order('created_at', { ascending: false }).limit(4),
     ]).then(([{ data: r }, { count: c }, { data: tx }]) => {
       if (r) setRooms(r)
       setClientCount(c ?? 0)

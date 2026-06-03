@@ -10,7 +10,7 @@ export default function Transactions() {
   const [txns, setTxns] = useState<any[]>([])
   useEffect(() => {
     supabase.from('fridge_transactions')
-      .select('*, fridge_clients(name), fridge_rooms(name), fridge_transaction_workers(amount, fridge_workers(name))')
+      .select('*, fridge_clients(name), fridge_rooms(name), fridge_transaction_workers(earnings, fridge_workers(name, role))')
       .order('created_at', { ascending: false }).limit(50)
       .then(({ data }) => setTxns(data ?? []))
   }, [])

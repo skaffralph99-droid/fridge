@@ -163,7 +163,7 @@ export default function NewTransaction() {
       plate_number: plateNumber || null,
       weight_first: wFirst || null, weight_second: wSecond || null,
       weight_net: netKg || null, company: company || null,
-    }).select('ticket_no').single()
+    }).select('id, ticket_no').single()
 
     if (txErr) { setError(txErr.message); setSaving(false); return }
 
