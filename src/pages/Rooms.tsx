@@ -1,4 +1,6 @@
+import { useLang } from '../lib/i18n'
 import { useEffect, useState } from 'react'
+  const { tr, dir } = useLang()
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 
@@ -11,7 +13,7 @@ export default function Rooms() {
 
   return (
     <div className="p-5 max-w-lg mx-auto">
-      <h1 className="text-xl font-black text-frost-steel mb-1">Rooms</h1>
+      <h1 className="text-xl font-black text-frost-steel mb-1">{tr('rooms')}</h1>
       <p className="text-frost-dim text-xs mb-6">{totalUsed.toLocaleString()}t of {totalCap.toLocaleString()}t used</p>
 
       <div className="space-y-3">

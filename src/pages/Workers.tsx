@@ -1,4 +1,6 @@
+import { useLang } from '../lib/i18n'
 import { useEffect, useState } from 'react'
+  const { tr, dir } = useLang()
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { Plus, Search, HardHat, Truck } from 'lucide-react'
@@ -22,7 +24,7 @@ export default function Workers() {
   return (
     <div className="p-5 max-w-lg mx-auto">
       <div className="flex justify-between items-center mb-5">
-        <h1 className="text-xl font-black text-frost-steel">Workers</h1>
+        <h1 className="text-xl font-black text-frost-steel">{tr('workers')}</h1>
         <Link to="/workers/new" className="bg-frost-blue text-white rounded-xl px-4 py-2.5 text-sm font-semibold flex items-center gap-1"><Plus size={15} /> New</Link>
       </div>
 

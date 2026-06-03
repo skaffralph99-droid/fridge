@@ -1,4 +1,6 @@
+import { useLang } from '../lib/i18n'
 import { useEffect, useState } from 'react'
+  const { tr, dir } = useLang()
 import { useParams, Link } from 'react-router-dom'
 import { format } from 'date-fns'
 import { supabase } from '../lib/supabase'
@@ -23,7 +25,7 @@ export default function WorkerDetail() {
   const jobCount = jobs.length
 
   return (
-    <div className="p-4 max-w-lg mx-auto">
+    <div dir={dir} className="p-4 max-w-lg mx-auto">
       <Link to="/workers" className="text-frost-blue text-sm font-bold flex items-center gap-1 mb-4"><ArrowLeft size={16} /> Workers</Link>
 
       <div className="card mb-4">

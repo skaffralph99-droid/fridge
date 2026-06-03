@@ -1,18 +1,30 @@
 import { Outlet, NavLink } from 'react-router-dom'
-import { LayoutDashboard, Warehouse, ArrowLeftRight, Users, FileText, HardHat } from 'lucide-react'
-
-const NAV = [
-  { to: '/', icon: LayoutDashboard, label: 'Home' },
-  { to: '/rooms', icon: Warehouse, label: 'Rooms' },
-  { to: '/transactions', icon: ArrowLeftRight, label: 'In/Out' },
-  { to: '/clients', icon: Users, label: 'Clients' },
-  { to: '/invoices', icon: FileText, label: 'Bills' },
-  { to: '/workers', icon: HardHat, label: 'Crew' },
-]
+import { LayoutDashboard, Warehouse, ArrowLeftRight, Users, FileText, HardHat, Globe } from 'lucide-react'
+import { useLang } from '../lib/i18n'
 
 export default function Layout() {
+  const { tr, lang, setLang, dir } = useLang()
+
+  const NAV = [
+    { to: '/', icon: LayoutDashboard, label: tr('home') },
+    { to: '/rooms', icon: Warehouse, label: tr('rooms') },
+    { to: '/transactions', icon: ArrowLeftRight, label: tr('inOut') },
+    { to: '/clients', icon: Users, label: tr('clients') },
+    { to: '/invoices', icon: FileText, label: tr('invoices') },
+    { to: '/workers', icon: HardHat, label: tr('workers') },
+  ]
+
   return (
-    <div className="min-h-screen bg-frost-bg flex flex-col">
+    <div className="min-h-screen bg-frost-bg flex flex-col" dir={dir}>
+      {/* Language toggle - top right */}
+      <button
+        onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')}
+        className="fixed top-3 left-3 z-50 bg-frost-elevated border border-frost-border rounded-full px-3 py-1.5 text-xs font-bold text-frost-dim hover:text-frost-blue transition-colors flex items-center gap-1.5"
+      >
+        <Globe size={12} />
+        {tr('language')}
+      </button>
+
       <div className="flex-1 overflow-y-auto pb-20">
         <Outlet />
       </div>

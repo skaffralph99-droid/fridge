@@ -1,4 +1,6 @@
+import { useLang } from '../lib/i18n'
 import { useEffect, useState } from 'react'
+  const { tr, dir } = useLang()
 import { Link } from 'react-router-dom'
 import { format } from 'date-fns'
 import { supabase } from '../lib/supabase'
@@ -36,7 +38,7 @@ export default function Dashboard() {
       {/* Header */}
       <div className="flex justify-between items-start mb-8">
         <div>
-          <h1 className="text-2xl font-black text-frost-steel">❄️ Cold Storage</h1>
+          <h1 className="text-2xl font-black text-frost-steel">{tr('dashboard')} ❄️</h1>
           <p className="text-frost-dim text-xs mt-1">{format(new Date(), 'EEEE, MMM dd')}</p>
         </div>
         <button onClick={signOut} className="text-frost-dim hover:text-red-400 p-2 mt-1"><LogOut size={18} /></button>
@@ -76,7 +78,7 @@ export default function Dashboard() {
       </Link>
 
       {/* Rooms */}
-      <p className="section-title">Rooms</p>
+      <p className="section-title">{tr('rooms')}</p>
       <div className="space-y-2 mb-2">
         {rooms.map(r => {
           const pct = parseFloat(r.capacity_tonnes) > 0 ? (parseFloat(r.current_tonnes) / parseFloat(r.capacity_tonnes)) * 100 : 0
@@ -100,7 +102,7 @@ export default function Dashboard() {
       </div>
 
       {/* Recent Activity */}
-      <p className="section-title">Recent</p>
+      <p className="section-title">{tr('recentActivity')}</p>
       {recentTx.length === 0 ? (
         <p className="text-frost-dim text-sm text-center py-6">No activity yet</p>
       ) : (

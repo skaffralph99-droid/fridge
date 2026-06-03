@@ -1,4 +1,6 @@
+import { useLang } from '../lib/i18n'
 import { useEffect, useState } from 'react'
+  const { tr, dir } = useLang()
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { Plus, Search } from 'lucide-react'
@@ -15,13 +17,13 @@ export default function Clients() {
   return (
     <div className="p-5 max-w-lg mx-auto">
       <div className="flex justify-between items-center mb-5">
-        <h1 className="text-xl font-black text-frost-steel">Clients</h1>
+        <h1 className="text-xl font-black text-frost-steel">{tr('clients')}</h1>
         <Link to="/clients/new" className="bg-frost-blue text-white rounded-xl px-4 py-2.5 text-sm font-semibold flex items-center gap-1"><Plus size={15} /> New</Link>
       </div>
 
       <div className="relative mb-5">
         <Search className="absolute left-4 top-3.5 text-frost-dim" size={15} />
-        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search..." className="input-f pl-10" />
+        <input value={search} onChange={e => setSearch(e.target.value)} placeholder={tr('search')} className="input-f pl-10" />
       </div>
 
       {filtered.length === 0 ? (

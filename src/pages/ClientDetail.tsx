@@ -1,4 +1,6 @@
+import { useLang } from '../lib/i18n'
 import { useEffect, useState } from 'react'
+  const { tr, dir } = useLang()
 import { useParams, Link } from 'react-router-dom'
 import { format } from 'date-fns'
 import { supabase } from '../lib/supabase'
@@ -22,7 +24,7 @@ export default function ClientDetail() {
   const totalStored = inventory.reduce((s, i) => s + parseFloat(i.tonnes), 0)
 
   return (
-    <div className="p-4 max-w-lg mx-auto">
+    <div dir={dir} className="p-4 max-w-lg mx-auto">
       <Link to="/clients" className="text-frost-blue text-sm font-bold flex items-center gap-1 mb-4"><ArrowLeft size={16} /> Clients</Link>
       <div className="card mb-4">
         <h1 className="text-xl font-black text-frost-steel">{client.name}</h1>

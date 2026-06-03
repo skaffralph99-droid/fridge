@@ -1,3 +1,4 @@
+import { useLang } from '../lib/i18n'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { format } from 'date-fns'
@@ -6,6 +7,7 @@ import { ArrowLeft, Calculator } from 'lucide-react'
 
 export default function NewInvoice() {
   const nav = useNavigate()
+  const { tr, dir } = useLang()
   const [clients, setClients] = useState<any[]>([])
   const [clientId, setClientId] = useState('')
   const [periodStart, setPeriodStart] = useState(format(new Date(new Date().getFullYear(), new Date().getMonth(), 1), 'yyyy-MM-dd'))
@@ -69,7 +71,7 @@ export default function NewInvoice() {
   const chip = (sel: boolean) => `px-4 py-2 rounded-full text-sm font-bold border cursor-pointer transition-all ${sel ? 'bg-frost-blue border-frost-blue text-white' : 'bg-frost-elevated border-frost-border text-frost-dim hover:border-frost-blue'}`
 
   return (
-    <div className="p-4 max-w-lg mx-auto">
+    <div dir={dir} className="p-4 max-w-lg mx-auto">
       <button onClick={() => nav(-1)} className="text-frost-blue text-sm font-bold flex items-center gap-1 mb-4"><ArrowLeft size={16} /> Back</button>
       <h1 className="text-xl font-black text-frost-steel mb-6">New Invoice</h1>
 

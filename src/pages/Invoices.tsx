@@ -1,4 +1,6 @@
+import { useLang } from '../lib/i18n'
 import { useEffect, useState } from 'react'
+  const { tr, dir } = useLang()
 import { Link } from 'react-router-dom'
 import { format } from 'date-fns'
 import { supabase } from '../lib/supabase'
@@ -18,7 +20,7 @@ export default function Invoices() {
   return (
     <div className="p-5 max-w-lg mx-auto">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-xl font-black text-frost-steel">Invoices</h1>
+        <h1 className="text-xl font-black text-frost-steel">{tr('invoices')}</h1>
         <Link to="/invoices/new" className="bg-frost-blue text-white rounded-xl px-4 py-2.5 text-sm font-semibold flex items-center gap-1"><Plus size={15} /> New</Link>
       </div>
 
@@ -41,7 +43,7 @@ export default function Invoices() {
               </div>
               {inv.status !== 'paid' && (
                 <button onClick={() => markPaid(inv.id)} className="w-full mt-2 border border-green-700 text-green-400 rounded-xl py-2.5 font-semibold text-sm hover:bg-green-500/10 transition-colors">
-                  ✓ Mark as Paid
+                  ✓ {tr('markPaid')}
                 </button>
               )}
             </div>

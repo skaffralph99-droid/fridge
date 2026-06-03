@@ -1,4 +1,6 @@
+import { useLang } from '../lib/i18n'
 import { useState, useEffect } from 'react'
+  const { tr, dir } = useLang()
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
@@ -56,7 +58,7 @@ export default function Login() {
           </div>
           {error && <p className="text-red-400 text-sm font-semibold">{error}</p>}
           <button type="submit" disabled={loading} className="btn-blue">
-            {loading ? 'Please wait...' : mode === 'login' ? 'Sign In' : 'Create Account'}
+            {loading ? 'Please wait...' : mode === 'login' ? tr('signIn') : 'Create Account'}
           </button>
           <button type="button" onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setError('') }}
             className="w-full text-frost-dim text-sm text-center py-2 hover:text-frost-blue transition-colors">
