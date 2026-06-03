@@ -86,7 +86,17 @@ export default function NewTransaction() {
 
   const validate = () => {
     setError('')
-    if (step === 1) { if (!clientId) return err('اختر الزبون'); if (!roomId) return err('اختر الغرفة') }
+    if (step === 1) {
+      if (!clientId) return err('اختر الزبون')
+      if (!roomId) return err('اختر الغرفة')
+      if (type === 'out') {
+        const room = rooms.find(r => r.id === roomId)
+        if (room && parseFloat(room.current_tonnes) <= 0) return err('الغرفة فارغة — لا يوجد شيء للإخراج')
+        if (clientInventory.length === 0) return err('هذا الزبون ليس لديه بضاعة في هذه الغرفة')
+        const inv = clientInventory.find(i => i.product_type === product)
+        if (!inv || parseFloat(inv.tonnes) <= 0) return err(`الزبون ليس لديه ${product} في هذه الغرفة`)
+      }
+    }
     if (step === 2) { if (!plateNumber) return err('أدخل رقم الشاحنة'); if (!weightFirst || !weightSecond) return err('أدخل الوزنتين') }
     if (step === 3) { if (!noLoaders && selectedLoaders.length === 0) return err('اختر العمال أو "بدون"'); if (!noDriver && !selectedDriver) return err('اختر السائق أو "بدون"') }
     return true
