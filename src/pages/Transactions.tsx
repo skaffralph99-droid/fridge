@@ -27,7 +27,7 @@ export default function Transactions() {
       ) : (
         <div className="space-y-2">
           {txns.map(tx => (
-            <div key={tx.id} className="card flex items-center gap-3 py-3">
+            <Link to={`/transactions/${tx.id}`} key={tx.id} className="card flex items-center gap-3 py-3 hover:border-frost-blue transition-colors">
               <span className={`text-[10px] font-bold px-2.5 py-1.5 rounded-lg shrink-0 ${tx.type === 'in' ? 'bg-green-500/12 text-green-400' : 'bg-red-500/12 text-red-400'}`}>
                 {tx.type === 'in' ? '▼ IN' : '▲ OUT'}
               </span>
@@ -44,7 +44,7 @@ export default function Transactions() {
               <p className={`font-bold shrink-0 ${tx.type === 'in' ? 'text-green-400' : 'text-red-400'}`}>
                 {tx.type === 'in' ? '+' : '−'}{parseFloat(tx.tonnes)}t
               </p>
-            </div>
+            </Link>
           ))}
         </div>
       )}
