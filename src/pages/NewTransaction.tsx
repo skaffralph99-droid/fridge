@@ -21,6 +21,18 @@ export default function NewTransaction() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
 
+  // Weighbridge ticket (قبان)
+  const [ticketRef, setTicketRef] = useState('')
+  const [plateNumber, setPlateNumber] = useState('')
+  const [weightFirst, setWeightFirst] = useState('')   // الوزنة الأولى (kg)
+  const [weightSecond, setWeightSecond] = useState('')  // الوزنة الثانية (kg)
+  const [unloadingFee, setUnloadingFee] = useState('')  // إيجار تنزيل
+
+  // Net weight from the two weighings, in kg
+  const wFirst = parseFloat(weightFirst) || 0
+  const wSecond = parseFloat(weightSecond) || 0
+  const netKg = Math.abs(wSecond - wFirst)
+
   // Worker/driver selection
   const [selectedLoaders, setSelectedLoaders] = useState<string[]>([])
   const [selectedDriver, setSelectedDriver] = useState('')
@@ -41,6 +53,11 @@ export default function NewTransaction() {
       .eq('client_id', clientId).eq('room_id', roomId).gt('tonnes', 0)
       .then(({ data }) => setClientInventory(data ?? []))
   }, [clientId, roomId])
+
+  // Auto-fill tonnes from weighbridge net (kg -> tonnes)
+  useEffect(() => {
+    if (netKg > 0) setTonnes((netKg / 1000).toFixed(2))
+  }, [netKg])
 
   const loaders = workers.filter(w => w.role === 'loader')
   const drivers = workers.filter(w => w.role === 'driver')
@@ -85,6 +102,9 @@ export default function NewTransaction() {
     const { data: txData, error: txErr } = await supabase.from('fridge_transactions').insert({
       client_id: clientId, room_id: roomId, type, product_type: product, tonnes: t,
       date: new Date().toISOString().split('T')[0], notes: notes || null, recorded_by: user?.id,
+      ticket_ref: ticketRef || null, plate_number: plateNumber || null,
+      weight_first: wFirst || null, weight_second: wSecond || null,
+      weight_net: netKg || null, unloading_fee: parseFloat(unloadingFee) || 0,
     }).select().single()
     if (txErr || !txData) { setError(txErr?.message ?? 'Failed'); setSaving(false); return }
 
@@ -185,6 +205,41 @@ export default function NewTransaction() {
           <div>
             <label className="label-f">Notes (optional)</label>
             <input value={notes} onChange={e => setNotes(e.target.value)} className="input-f" placeholder="Batch, quality..." />
+          </div>
+        </div>
+
+        {/* Weighbridge ticket (قبان) */}
+        <div className="card space-y-5">
+          <h2 className="text-frost-steel text-sm font-black uppercase tracking-widest">⚖️ Weighbridge Ticket</h2>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="label-f">Ticket Ref (المرجع)</label>
+              <input value={ticketRef} onChange={e => setTicketRef(e.target.value)} className="input-f" placeholder="e.g. 231292" />
+            </div>
+            <div>
+              <label className="label-f">Plate (رقم الشاحنة)</label>
+              <input value={plateNumber} onChange={e => setPlateNumber(e.target.value)} className="input-f" placeholder="e.g. 338455" />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="label-f">1st Weight kg (الأولى)</label>
+              <input type="number" step="1" value={weightFirst} onChange={e => setWeightFirst(e.target.value)} className="input-f" placeholder="5360" />
+            </div>
+            <div>
+              <label className="label-f">2nd Weight kg (الثانية)</label>
+              <input type="number" step="1" value={weightSecond} onChange={e => setWeightSecond(e.target.value)} className="input-f" placeholder="17300" />
+            </div>
+          </div>
+          {netKg > 0 && (
+            <div className="bg-frost-elevated border border-frost-border rounded-xl p-3 flex justify-between items-center">
+              <span className="text-frost-dim text-sm">Net (الصافي)</span>
+              <span className="text-frost-blue font-black">{netKg.toLocaleString()} kg · {(netKg / 1000).toFixed(2)}t</span>
+            </div>
+          )}
+          <div>
+            <label className="label-f">Unloading Fee (إيجار تنزيل)</label>
+            <input type="number" step="0.01" value={unloadingFee} onChange={e => setUnloadingFee(e.target.value)} className="input-f" placeholder="Amount" />
           </div>
         </div>
 
