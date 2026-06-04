@@ -45,25 +45,25 @@ export default function RoomDetail() {
 
       <h2 className="text-frost-steel text-xs font-black uppercase tracking-widest mb-3">المخزون</h2>
       {inventory.length === 0 ? <p className="text-frost-dim text-center py-4">فارغ</p> : inventory.map(inv => (
-        <div key={inv.id} className="card mb-2 flex justify-between items-center">
+        <Link to={`/clients/${inv.client_id}`} key={inv.id} className="card mb-2 flex justify-between items-center hover:border-frost-blue transition-colors">
           <div>
             <p className="text-frost-steel font-semibold text-sm">{inv.fridge_clients?.name}</p>
-            <p className="text-frost-dim text-xs">{inv.product_type} · منذ {format(new Date(inv.date_in), 'MMM dd')}</p>
+            <p className="text-frost-dim text-xs">{inv.product_type} · منذ {format(new Date(inv.date_in), 'dd/MM')}</p>
           </div>
-          <p className="text-frost-blue font-black">{inv.tonnes}t</p>
-        </div>
+          <p className="text-frost-blue font-black">{parseFloat(inv.tonnes)}t</p>
+        </Link>
       ))}
 
       <h2 className="text-frost-steel text-xs font-black uppercase tracking-widest mb-3 mt-6">الحركات</h2>
       {txns.map(tx => (
-        <div key={tx.id} className="card mb-2 flex items-center gap-3">
-          <span className={`text-xs font-black px-2 py-1 rounded ${tx.type === 'in' ? 'bg-green-500/15 text-green-400' : 'bg-red-500/15 text-red-400'}`}>{tx.type.toUpperCase()}</span>
+        <Link to={`/transactions/${tx.id}`} key={tx.id} className="card mb-2 flex items-center gap-3 hover:border-frost-blue transition-colors">
+          <span className={`text-xs font-black px-2 py-1 rounded ${tx.type === 'in' ? 'bg-green-500/15 text-green-400' : 'bg-red-500/15 text-red-400'}`}>{tx.type === 'in' ? 'إدخال' : 'إخراج'}</span>
           <div className="flex-1">
             <p className="text-frost-steel text-sm">{tx.fridge_clients?.name} · {tx.product_type}</p>
-            <p className="text-frost-dim text-xs">{format(new Date(tx.date), 'MMM dd, yyyy')}</p>
+            <p className="text-frost-dim text-xs">#{tx.ticket_no} · {format(new Date(tx.date), 'dd/MM/yyyy')}</p>
           </div>
-          <p className={`font-bold ${tx.type === 'in' ? 'text-green-400' : 'text-red-400'}`}>{tx.type === 'in' ? '+' : '−'}{tx.tonnes}t</p>
-        </div>
+          <p className={`font-bold ${tx.type === 'in' ? 'text-green-400' : 'text-red-400'}`}>{tx.type === 'in' ? '+' : '−'}{parseFloat(tx.tonnes)}t</p>
+        </Link>
       ))}
     </div>
   )

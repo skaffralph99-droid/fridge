@@ -54,18 +54,18 @@ export default function WorkerDetail() {
       ) : jobs.map(j => {
         const tx = j.fridge_transactions
         return (
-          <div key={j.id} className="card mb-2">
+          <Link to={`/transactions/${j.transaction_id}`} key={j.id} className="card mb-2 hover:border-frost-blue transition-colors">
             <div className="flex justify-between items-center">
               <div>
                 <p className="text-frost-steel text-sm font-semibold">{tx?.fridge_clients?.name}</p>
                 <p className="text-frost-dim text-xs">
-                  {tx?.type === 'in' ? '▼ IN' : '▲ OUT'} · {tx?.product_type} · {parseFloat(tx?.tonnes)}t · {tx?.fridge_rooms?.name}
+                  {tx?.type === 'in' ? '▼ إدخال' : '▲ إخراج'} · {tx?.product_type} · {parseFloat(tx?.tonnes)}t · {tx?.fridge_rooms?.name}
                 </p>
-                <p className="text-frost-dim text-[11px] mt-1">📅 {tx?.date ? format(new Date(tx.date), 'MMM dd, yyyy') : '—'}</p>
+                <p className="text-frost-dim text-[11px] mt-1">#{tx?.ticket_no} · {tx?.date ? format(new Date(tx.date), 'dd/MM/yyyy') : '—'}</p>
               </div>
               <p className="text-green-400 font-black">${parseFloat(j.earnings).toFixed(0)}</p>
             </div>
-          </div>
+          </Link>
         )
       })}
     </div>
