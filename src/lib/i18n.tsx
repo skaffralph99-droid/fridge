@@ -125,7 +125,7 @@ export function LangProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     document.documentElement.lang = lang
-  }, [lang])"
+  }, [lang])
 
 
   return <LangContext.Provider value={{ lang, setLang, tr, dir }}>{children}</LangContext.Provider>
