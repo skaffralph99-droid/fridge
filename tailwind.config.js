@@ -5,15 +5,15 @@ export default {
     extend: {
       colors: {
         frost: {
-          bg: '#0F1318',
-          dark: '#0F1318',
-          card: '#1A2030',
-          elevated: '#232E3E',
-          border: '#334155',
-          steel: '#E8ECF0',
-          dim: '#7B8CA0',
-          blue: '#10B981',
-          cyan: '#10B981',
+          bg: '#0A1628',
+          dark: '#0D1B2A',
+          card: '#132238',
+          elevated: '#1A2D47',
+          border: '#253D5B',
+          steel: '#E8EDF2',
+          dim: '#7A8FA6',
+          blue: '#3B82F6',
+          cyan: '#22D3EE',
         }
       }
     }

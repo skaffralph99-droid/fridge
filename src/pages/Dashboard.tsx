@@ -56,8 +56,8 @@ export default function Dashboard() {
       </div>
 
       {/* KPI Cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "20px" }}>
-        <div className="card" style={{ textAlign: "center" }}>
+      <div className="grid grid-cols-2 gap-3 mb-5">
+        <div className="card text-center">
           <p className="text-frost-dim text-[10px] uppercase font-bold tracking-wider">المخزون</p>
           <p className="text-frost-steel font-black text-2xl mt-1">{totalStored.toFixed(0)}t</p>
           <div className="w-full bg-frost-elevated rounded-full h-1.5 mt-2">
@@ -65,7 +65,7 @@ export default function Dashboard() {
           </div>
           <p className="text-frost-dim text-[10px] mt-1">{occupancyPct}% من السعة</p>
         </div>
-        <div className="card" style={{ textAlign: "center" }}>
+        <div className="card text-center">
           <p className="text-frost-dim text-[10px] uppercase font-bold tracking-wider">مستحقات معلّقة</p>
           <p className={`font-black text-2xl mt-1 ${pendingPayments > 0 ? 'text-yellow-400' : 'text-frost-blue'}`}>${pendingPayments.toLocaleString()}</p>
           <p className="text-frost-dim text-[10px] mt-1">{clientCount} زبون</p>
@@ -98,7 +98,7 @@ export default function Dashboard() {
 
       {/* Rooms */}
       <p className="section-title mb-3">{tr('rooms')}</p>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "20px" }}>
+      <div className="grid grid-cols-2 gap-3 mb-5">
         {rooms.map(r => {
           const pct = Math.round((parseFloat(r.current_tonnes) / parseFloat(r.capacity_tonnes)) * 100)
           const color = pct >= 90 ? 'bg-red-500' : pct >= 70 ? 'bg-yellow-500' : 'bg-frost-blue'
@@ -143,7 +143,7 @@ export default function Dashboard() {
 
       {/* Quick Actions */}
       <p className="section-title mb-3">{tr('quickActions')}</p>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+      <div className="grid grid-cols-2 gap-3">
         <Link to="/transactions/new" className="card flex items-center gap-3 py-3 hover:border-frost-blue"><ArrowLeftRight size={18} className="text-frost-blue" /><span className="text-frost-steel text-sm font-bold">{tr('newTransaction')}</span></Link>
         <Link to="/clients/new" className="card flex items-center gap-3 py-3 hover:border-frost-blue"><Users size={18} className="text-frost-blue" /><span className="text-frost-steel text-sm font-bold">{tr('newClient')}</span></Link>
         <Link to="/invoices/new" className="card flex items-center gap-3 py-3 hover:border-frost-blue"><FileText size={18} className="text-frost-blue" /><span className="text-frost-steel text-sm font-bold">{tr('newInvoice')}</span></Link>

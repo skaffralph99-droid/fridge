@@ -2,58 +2,45 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-:root {
-  --bg: #0F1318;
-  --card: #1A2030;
-  --elevated: #232E3E;
-  --border: #334155;
-  --steel: #E8ECF0;
-  --dim: #7B8CA0;
-  --primary: #10B981;
-  --red: #EF4444;
-  --gold: #F59E0B;
-  --green: #10B981;
-}
-
 body {
   font-family: 'Inter', -apple-system, sans-serif;
-  background: var(--bg);
-  color: var(--steel);
+  background: #0A1628;
+  color: #E8EDF2;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
 }
 
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+::-webkit-scrollbar-thumb { background: #253D5B; border-radius: 2px; }
 
 .card {
-  background: var(--card);
-  border: 1.5px solid var(--border);
+  background: #132238;
+  border: 1px solid #1E3350;
   border-radius: 16px;
   padding: 16px;
   transition: border-color 0.2s;
 }
-.card:hover { border-color: var(--primary); }
+.card:hover { border-color: #3B82F6; }
 
 .input-f {
-  background: var(--elevated);
-  border: 1.5px solid var(--border);
+  background: #1A2D47;
+  border: 1px solid #253D5B;
   border-radius: 12px;
   padding: 12px 14px;
-  color: var(--steel);
+  color: #E8EDF2;
   font-size: 15px;
   width: 100%;
   font-family: inherit;
   outline: none;
   transition: border-color 0.2s;
 }
-.input-f:focus { border-color: var(--primary); }
-.input-f::placeholder { color: var(--dim); }
+.input-f:focus { border-color: #3B82F6; }
+.input-f::placeholder { color: #7A8FA6; }
 
 .btn-blue {
-  background: var(--primary);
-  color: #000;
+  background: #3B82F6;
+  color: #fff;
   border: none;
   border-radius: 14px;
   padding: 14px 24px;
@@ -70,7 +57,7 @@ body {
 
 .label-f {
   display: block;
-  color: var(--dim);
+  color: #7A8FA6;
   font-size: 12px;
   font-weight: 700;
   margin-bottom: 6px;
@@ -79,7 +66,7 @@ body {
 }
 
 .section-title {
-  color: var(--dim);
+  color: #7A8FA6;
   font-size: 11px;
   font-weight: 800;
   text-transform: uppercase;
