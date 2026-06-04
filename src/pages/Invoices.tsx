@@ -19,7 +19,7 @@ export default function Invoices() {
   const pending = total - paid
 
   return (
-    <div dir={dir} className="p-5 max-w-lg mx-auto">
+    <div className="p-5 max-w-lg mx-auto">
       <div className="flex justify-between items-center mb-5">
         <h1 className="text-xl font-black text-frost-steel">الفواتير</h1>
         <Link to="/invoices/new" className="bg-frost-blue text-white rounded-2xl px-4 py-2.5 text-sm font-bold flex items-center gap-1 active:scale-95"><Plus size={15} /> جديد</Link>

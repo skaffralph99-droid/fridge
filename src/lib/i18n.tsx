@@ -124,9 +124,9 @@ export function LangProvider({ children }: { children: ReactNode }) {
   const dir = lang === 'ar' ? 'rtl' as const : 'ltr' as const
 
   useEffect(() => {
-    document.documentElement.dir = dir
     document.documentElement.lang = lang
-  }, [lang, dir])
+  }, [lang])"
+
 
   return <LangContext.Provider value={{ lang, setLang, tr, dir }}>{children}</LangContext.Provider>
 }

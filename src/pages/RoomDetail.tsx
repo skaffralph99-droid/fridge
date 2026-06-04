@@ -25,7 +25,7 @@ export default function RoomDetail() {
   const barColor = pct > 85 ? 'bg-red-500' : pct > 60 ? 'bg-yellow-400' : 'bg-green-400'
 
   return (
-    <div dir={dir} className="p-4 max-w-lg mx-auto">
+    <div className="p-4 max-w-lg mx-auto">
       <Link to="/rooms" className="text-frost-blue text-sm font-bold flex items-center gap-1 mb-4"><ArrowLeft size={16} /> Rooms</Link>
       <div className="card mb-4">
         <h1 className="text-xl font-black text-frost-steel">{room.name}</h1>

@@ -15,7 +15,7 @@ export default function Rooms() {
   const totalCap = rooms.reduce((s, r) => s + parseFloat(r.capacity_tonnes || 0), 0)
 
   return (
-    <div dir={dir} className="p-5 max-w-lg mx-auto">
+    <div className="p-5 max-w-lg mx-auto">
       <h1 className="text-xl font-black text-frost-steel mb-2">{tr('rooms')}</h1>
       <p className="text-frost-dim text-sm mb-5">{totalStored.toFixed(0)} / {totalCap.toFixed(0)} طن مستخدم</p>
 

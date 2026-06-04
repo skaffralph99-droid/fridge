@@ -42,7 +42,7 @@ export default function NewWorker() {
   const chip = (sel: boolean) => `px-4 py-2 rounded-full text-sm font-bold border cursor-pointer transition-all ${sel ? 'bg-frost-blue border-frost-blue text-white' : 'bg-frost-elevated border-frost-border text-frost-dim'}`
 
   return (
-    <div dir={dir} className="p-4 max-w-lg mx-auto">
+    <div className="p-4 max-w-lg mx-auto">
       <button onClick={() => nav(-1)} className="text-frost-blue text-sm font-bold flex items-center gap-1 mb-4"><ArrowRight size={16} /> رجوع</button>
       <h1 className="text-xl font-black text-frost-steel mb-6">عامل جديد</h1>
       <form onSubmit={submit} className="card space-y-4">

@@ -60,7 +60,7 @@ export default function Transactions() {
   })
 
   return (
-    <div dir={dir} className="p-5 max-w-lg mx-auto">
+    <div className="p-5 max-w-lg mx-auto">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-xl font-black text-frost-steel">{tr('transactions')}</h1>
         <Link to="/transactions/new" className="bg-frost-blue text-white rounded-2xl px-4 py-2.5 text-sm font-bold flex items-center gap-1"><Plus size={15} /> جديد</Link>

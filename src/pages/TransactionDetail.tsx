@@ -30,13 +30,13 @@ export default function TransactionDetail() {
   }, [id])
 
   if (loading) return <div className="flex items-center justify-center h-screen"><div className="w-10 h-10 border-4 border-frost-blue border-t-transparent rounded-full animate-spin" /></div>
-  if (!tx) return <div dir={dir} className="p-4"><p className="text-frost-dim text-center mt-20">غير موجود</p></div>
+  if (!tx) return <div className="p-4"><p className="text-frost-dim text-center mt-20">غير موجود</p></div>
 
   const isIn = tx.type === 'in'
   const totalLabor = workers.reduce((s, w) => s + parseFloat(w.earnings || 0), 0)
 
   return (
-    <div dir={dir} className="p-4 max-w-lg mx-auto pb-24">
+    <div className="p-4 max-w-lg mx-auto pb-24">
       <button onClick={() => nav(-1)} className="text-frost-blue text-sm font-bold flex items-center gap-1 mb-4"><ArrowRight size={16} /> رجوع</button>
 
       {/* Header with ticket # */}

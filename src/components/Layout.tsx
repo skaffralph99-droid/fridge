@@ -15,7 +15,7 @@ export default function Layout() {
   ]
 
   return (
-    <div className="min-h-screen bg-frost-bg flex flex-col" dir={dir}>
+    <div className="min-h-screen bg-frost-bg flex flex-col">
       {/* Language toggle - top right */}
       <button
         onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')}

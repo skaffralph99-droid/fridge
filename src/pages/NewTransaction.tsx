@@ -146,7 +146,7 @@ export default function NewTransaction() {
         '<div class="big">' + tonnes + ' طن</div>',
       ].filter(Boolean).join('')
 
-      const html = '<!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="UTF-8"><title>إيصال</title>' +
+      const html = '<!DOCTYPE html><html lang="ar"><head><meta charset="UTF-8"><title>إيصال</title>' +
         '<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Segoe UI,sans-serif;padding:30px;color:#1a1a2e;direction:rtl;max-width:400px;margin:0 auto}' +
         '.hdr{text-align:center;border-bottom:2px solid #000;padding-bottom:15px;margin-bottom:15px}.hdr h1{font-size:20px}.hdr p{color:#666;font-size:12px;margin-top:4px}' +
         '.row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #eee;font-size:14px}.row span:last-child{font-weight:700}' +
@@ -178,7 +178,7 @@ export default function NewTransaction() {
   const steps = ['الزبون', 'القبان', 'العمال', 'تأكيد']
 
   return (
-    <div className="min-h-screen bg-frost-bg" dir="rtl">
+    <div className="min-h-screen bg-frost-bg">
       {/* Top bar */}
       <div className="sticky top-0 z-10 bg-frost-dark/95 backdrop-blur-md border-b border-frost-border/50 px-4 py-3">
         <div className="max-w-lg mx-auto flex items-center justify-between">

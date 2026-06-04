@@ -25,7 +25,7 @@ export default function WorkerDetail() {
   const jobCount = jobs.length
 
   return (
-    <div dir={dir} className="p-4 max-w-lg mx-auto">
+    <div className="p-4 max-w-lg mx-auto">
       <Link to="/workers" className="text-frost-blue text-sm font-bold flex items-center gap-1 mb-4"><ArrowLeft size={16} />العمال</Link>
 
       <div className="card mb-4">

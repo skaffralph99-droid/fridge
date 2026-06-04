@@ -75,7 +75,7 @@ export default function InvoiceDetail() {
   const isPaid = inv.status === 'paid'
 
   return (
-    <div dir={dir} className="p-4 max-w-lg mx-auto pb-32">
+    <div className="p-4 max-w-lg mx-auto pb-32">
       <button onClick={() => nav(-1)} className="text-frost-blue text-sm font-bold flex items-center gap-1 mb-4"><ArrowRight size={16} /> رجوع</button>
 
       {/* Invoice card */}
