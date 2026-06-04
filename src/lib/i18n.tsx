@@ -125,6 +125,7 @@ export function LangProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     document.documentElement.lang = lang
+    document.documentElement.dir = 'ltr'
   }, [lang])
 
 
