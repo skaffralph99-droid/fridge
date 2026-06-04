@@ -3,15 +3,13 @@
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
 :root {
-  --bg: #0C1015;
-  --card: #151B23;
-  --elevated: #1C242E;
-  --border: #2A3441;
-  --steel: #E5E9ED;
-  --dim: #6B7B8D;
+  --bg: #0F1318;
+  --card: #1A2030;
+  --elevated: #232E3E;
+  --border: #334155;
+  --steel: #E8ECF0;
+  --dim: #7B8CA0;
   --primary: #10B981;
-  --primary-dim: #10B98130;
-  --accent: #10B981;
   --red: #EF4444;
   --gold: #F59E0B;
   --green: #10B981;
@@ -31,12 +29,12 @@ body {
 
 .card {
   background: var(--card);
-  border: 1px solid var(--border);
+  border: 1.5px solid var(--border);
   border-radius: 16px;
   padding: 16px;
+  transition: border-color 0.2s;
 }
-
-.card:hover { border-color: var(--primary); transition: border-color 0.2s; }
+.card:hover { border-color: var(--primary); }
 
 .input-f {
   background: var(--elevated);
