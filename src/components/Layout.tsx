@@ -19,7 +19,7 @@ export default function Layout() {
       {/* Language toggle - top right */}
       <button
         onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')}
-        className="fixed top-3 left-3 z-50 bg-frost-elevated border border-frost-border rounded-full px-3 py-1.5 text-xs font-bold text-frost-dim hover:text-frost-blue transition-colors flex items-center gap-1.5"
+        className="fixed top-3 right-3 z-50 bg-frost-elevated border border-frost-border rounded-full px-3 py-1.5 text-xs font-bold text-frost-dim hover:text-frost-blue transition-colors flex items-center gap-1.5"
       >
         <Globe size={12} />
         {tr('language')}

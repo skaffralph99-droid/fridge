@@ -106,6 +106,7 @@ export default function NewTransaction() {
   const prev = () => { setError(''); setStep(s => Math.max(s - 1, 1)) }
 
   const submit = async () => {
+    if (!confirm('تأكيد حفظ هذه الحركة؟')) return
     setSaving(true); setError('')
     const { data: room } = await supabase.from('fridge_rooms').select('*').eq('id', roomId).single()
     if (!room) { setError('غرفة غير موجودة'); setSaving(false); return }
@@ -129,7 +130,36 @@ export default function NewTransaction() {
     if (recs.length > 0) await supabase.from('fridge_transaction_workers').insert(recs)
 
     setSaving(false)
-    alert(`✅ تم الحفظ — بطاقة #${tx.ticket_no}`)
+    
+    // Show receipt option
+    const showReceipt = confirm('✅ تم الحفظ — بطاقة #' + tx.ticket_no + '\n\nهل تريد طباعة الإيصال؟')
+    if (showReceipt) {
+      const lines = [
+        '<div class="row"><span>النوع</span><span>' + (type === 'in' ? 'إدخال ▼' : 'إخراج ▲') + '</span></div>',
+        '<div class="row"><span>الزبون</span><span>' + clientName + '</span></div>',
+        company ? '<div class="row"><span>الشركة</span><span>' + company + '</span></div>' : '',
+        '<div class="row"><span>الغرفة</span><span>' + roomName + '</span></div>',
+        '<div class="row"><span>المنتج</span><span>' + product + '</span></div>',
+        '<div class="row"><span>الشاحنة</span><span>' + plateNumber + '</span></div>',
+        '<div class="row"><span>الوزنة ١</span><span>' + wFirst.toLocaleString() + ' كغ</span></div>',
+        '<div class="row"><span>الوزنة ٢</span><span>' + wSecond.toLocaleString() + ' كغ</span></div>',
+        '<div class="big">' + tonnes + ' طن</div>',
+      ].filter(Boolean).join('')
+
+      const html = '<!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="UTF-8"><title>إيصال</title>' +
+        '<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Segoe UI,sans-serif;padding:30px;color:#1a1a2e;direction:rtl;max-width:400px;margin:0 auto}' +
+        '.hdr{text-align:center;border-bottom:2px solid #000;padding-bottom:15px;margin-bottom:15px}.hdr h1{font-size:20px}.hdr p{color:#666;font-size:12px;margin-top:4px}' +
+        '.row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #eee;font-size:14px}.row span:last-child{font-weight:700}' +
+        '.big{font-size:24px;text-align:center;margin:15px 0;font-weight:900}.ft{text-align:center;margin-top:20px;color:#999;font-size:11px}' +
+        '@media print{body{padding:10px}}</style></head><body>' +
+        '<div class="hdr"><h1>❄️ إيصال تخزين</h1><p>بطاقة #' + tx.ticket_no + '</p></div>' +
+        lines +
+        '<div class="ft">❄️ إدارة التبريد</div>' +
+        '<script>window.onload=function(){window.print()}<\/script></body></html>'
+      
+      const win = window.open('', '_blank')
+      if (win) { win.document.write(html); win.document.close() }
+    }
     nav('/transactions')
   }
 
