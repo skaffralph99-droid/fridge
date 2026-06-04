@@ -65,7 +65,7 @@ export default function Dashboard() {
         </div>
         <div className="flex justify-between mt-2 text-frost-dim text-xs">
           <span>{clientCount} زبون</span>
-          <span>{(totalCap - totalUsed).toLocaleString()}t متاح</span>
+          <span>{(totalCap - totalUsed).toLocaleString()}t free</span>
         </div>
       </div>
 

@@ -17,7 +17,7 @@ export default function Rooms() {
   return (
     <div className="p-5 max-w-lg mx-auto">
       <h1 className="text-xl font-black text-frost-steel mb-2">{tr('rooms')}</h1>
-      <p className="text-frost-dim text-sm mb-5">{totalStored.toFixed(0)} / {totalCap.toFixed(0)} طن مستخدم</p>
+      <p className="text-frost-dim text-sm mb-5">{totalStored.toFixed(0)} / {totalCap.toFixed(0)} t used</p>
 
       <div className="space-y-3">
         {rooms.map(r => {
@@ -38,8 +38,8 @@ export default function Rooms() {
                 <div className={`h-2.5 rounded-full transition-all duration-500 ${barColor}`} style={{ width: `${Math.min(pct, 100)}%` }} />
               </div>
               <div className="flex justify-between text-xs text-frost-dim">
-                <span>{cur.toFixed(0)} طن مخزّن</span>
-                <span>{(cap - cur).toFixed(0)} طن متاح</span>
+                <span>{cur.toFixed(0)} t stored</span>
+                <span>{(cap - cur).toFixed(0)} t free</span>
               </div>
             </Link>
           )

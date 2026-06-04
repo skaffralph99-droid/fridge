@@ -131,9 +131,8 @@ export default function NewTransaction() {
 
     setSaving(false)
     
-    // Show receipt option
-    const showReceipt = confirm('✅ تم الحفظ — بطاقة #' + tx.ticket_no + '\n\nهل تريد طباعة الإيصال؟')
-    if (showReceipt) {
+    // Open receipt directly (popup blockers block after confirm)
+    {
       const lines = [
         '<div class="row"><span>النوع</span><span>' + (type === 'in' ? 'إدخال ▼' : 'إخراج ▲') + '</span></div>',
         '<div class="row"><span>الزبون</span><span>' + clientName + '</span></div>',
@@ -160,6 +159,7 @@ export default function NewTransaction() {
       const win = window.open('', '_blank')
       if (win) { win.document.write(html); win.document.close() }
     }
+    alert('✅ تم الحفظ — بطاقة #' + tx.ticket_no)
     nav('/transactions')
   }
 
