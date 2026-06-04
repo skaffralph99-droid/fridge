@@ -47,11 +47,11 @@ export default function ClientDetail() {
 
       <h2 className="text-frost-steel text-xs font-black uppercase tracking-widest mb-3 mt-6">السجل</h2>
       {txns.map(tx => (
-        <div key={tx.id} className="card mb-2 flex items-center gap-2">
-          <span className={`text-[10px] font-black px-2 py-1 rounded ${tx.type === 'in' ? 'bg-green-500/15 text-green-400' : 'bg-red-500/15 text-red-400'}`}>{tx.type.toUpperCase()}</span>
-          <div className="flex-1"><p className="text-frost-steel text-sm">{tx.product_type} · {tx.fridge_rooms?.name}</p><p className="text-frost-dim text-xs">{format(new Date(tx.date), 'MMM dd, yyyy')}</p></div>
-          <p className={`font-bold ${tx.type === 'in' ? 'text-green-400' : 'text-red-400'}`}>{tx.type === 'in' ? '+' : '−'}{tx.tonnes}t</p>
-        </div>
+        <Link to={`/transactions/${tx.id}`} key={tx.id} className="card mb-2 flex items-center gap-2 hover:border-frost-blue transition-colors">
+          <span className={`text-[10px] font-black px-2 py-1 rounded ${tx.type === 'in' ? 'bg-green-500/15 text-green-400' : 'bg-red-500/15 text-red-400'}`}>{tx.type === 'in' ? 'إدخال' : 'إخراج'}</span>
+          <div className="flex-1"><p className="text-frost-steel text-sm">{tx.product_type} · {tx.fridge_rooms?.name}</p><p className="text-frost-dim text-xs">#{tx.ticket_no} · {format(new Date(tx.date), 'dd/MM/yyyy')}</p></div>
+          <p className={`font-bold ${tx.type === 'in' ? 'text-green-400' : 'text-red-400'}`}>{tx.type === 'in' ? '+' : '−'}{parseFloat(tx.tonnes)}t</p>
+        </Link>
       ))}
     </div>
   )
