@@ -52,11 +52,12 @@ export default function Transactions() {
   const filtered = txns.filter(tx => {
     if (filter !== 'all' && tx.type !== filter) return false
     if (!search) return true
-    const q = search.toLowerCase()
+    const q = search.toLowerCase().replace('#', '')
     return tx.fridge_clients?.name?.toLowerCase().includes(q) ||
       tx.product_type?.toLowerCase().includes(q) ||
       tx.fridge_rooms?.name?.toLowerCase().includes(q) ||
-      tx.plate_number?.toLowerCase().includes(q)
+      tx.plate_number?.toLowerCase().includes(q) ||
+      String(tx.ticket_no) === q
   })
 
   return (
@@ -69,7 +70,7 @@ export default function Transactions() {
       {/* Search */}
       <div className="relative mb-3">
         <Search size={16} className="absolute right-3 top-3 text-frost-dim" />
-        <input value={search} onChange={e => setSearch(e.target.value)} className="input-f pr-10" placeholder="بحث بالزبون، المنتج، الغرفة..." />
+        <input value={search} onChange={e => setSearch(e.target.value)} className="input-f pr-10" placeholder="بحث بالرقم، الزبون، المنتج..." />
       </div>
 
       {/* Filter */}
