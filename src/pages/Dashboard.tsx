@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 import { format } from 'date-fns'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
-import { LogOut, TrendingUp, ChevronRight, ArrowLeftRight, Users, FileText, HardHat, AlertTriangle } from 'lucide-react'
+import { LogOut, TrendingUp, ChevronRight, ArrowLeftRight, Users, FileText, HardHat, AlertTriangle, Trash2 } from 'lucide-react'
 
 export default function Dashboard() {
   const { tr } = useLang()
@@ -14,6 +14,7 @@ export default function Dashboard() {
   const [recentTx, setRecentTx] = useState<any[]>([])
   const [pendingPayments, setPendingPayments] = useState(0)
   const [loading, setLoading] = useState(true)
+  const [resetting, setResetting] = useState(false)
 
   useEffect(() => {
     Promise.all([
@@ -169,6 +170,33 @@ export default function Dashboard() {
         <Link to="/transactions/new" className="card flex items-center gap-3 py-3 hover:border-frost-blue"><ArrowLeftRight size={18} className="text-frost-blue" /><span className="text-frost-steel text-sm font-bold">{tr('newTransaction')}</span></Link>
         <Link to="/clients/new" className="card flex items-center gap-3 py-3 hover:border-frost-blue"><Users size={18} className="text-frost-blue" /><span className="text-frost-steel text-sm font-bold">{tr('newClient')}</span></Link>
         <Link to="/invoices/new" className="card flex items-center gap-3 py-3 hover:border-frost-blue"><FileText size={18} className="text-frost-blue" /><span className="text-frost-steel text-sm font-bold">{tr('newInvoice')}</span></Link>
+      </div>
+
+      {/* Reset */}
+      <div className="mt-10 pt-6 border-t border-frost-border/30">
+        <button
+          disabled={resetting}
+          onClick={async () => {
+            if (!confirm('⚠️ هل أنت متأكد؟ سيتم حذف جميع البيانات (الزبائن، الحركات، العمال، الفواتير) وإعادة الغرف إلى صفر.')) return
+            if (!confirm('تأكيد نهائي — لا يمكن التراجع. متأكد؟')) return
+            setResetting(true)
+            await supabase.from('fridge_transaction_workers').delete().neq('id', '00000000-0000-0000-0000-000000000000')
+            await supabase.from('fridge_transactions').delete().neq('id', '00000000-0000-0000-0000-000000000000')
+            await supabase.from('fridge_inventory').delete().neq('id', '00000000-0000-0000-0000-000000000000')
+            await supabase.from('fridge_invoices').delete().neq('id', '00000000-0000-0000-0000-000000000000')
+            await supabase.from('fridge_contracts').delete().neq('id', '00000000-0000-0000-0000-000000000000')
+            await supabase.from('fridge_temp_logs').delete().neq('id', '00000000-0000-0000-0000-000000000000')
+            await supabase.from('fridge_clients').delete().neq('id', '00000000-0000-0000-0000-000000000000')
+            await supabase.from('fridge_workers').delete().neq('id', '00000000-0000-0000-0000-000000000000')
+            await supabase.from('fridge_rooms').update({ current_tonnes: 0 }).neq('id', '00000000-0000-0000-0000-000000000000')
+            setResetting(false)
+            window.location.reload()
+          }}
+          className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl border border-red-500/30 text-red-400 text-sm font-bold hover:bg-red-500/10 transition-colors"
+        >
+          <Trash2 size={16} />
+          {resetting ? 'جاري الحذف...' : 'حذف جميع البيانات وإعادة التعيين'}
+        </button>
       </div>
     </div>
   )
