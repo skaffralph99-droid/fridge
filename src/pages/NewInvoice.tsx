@@ -1,48 +1,32 @@
 import { useLang } from '../lib/i18n'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { format } from 'date-fns'
+import { format, differenceInDays } from 'date-fns'
 import { supabase } from '../lib/supabase'
 import { ArrowLeft, Calculator } from 'lucide-react'
 
 export default function NewInvoice() {
-  const { tr, dir } = useLang()
+  const { tr } = useLang()
   const nav = useNavigate()
   const [clients, setClients] = useState<any[]>([])
   const [clientId, setClientId] = useState('')
-  const [periodStart, setPeriodStart] = useState(() => {
-    const now = new Date()
-    const seasonMonth = Math.floor(now.getMonth() / 3) * 3 // Jan=0, Apr=3, Jul=6, Oct=9
-    return format(new Date(now.getFullYear(), seasonMonth, 1), 'yyyy-MM-dd')
-  })
-  const [periodEnd, setPeriodEnd] = useState(() => {
-    const now = new Date()
-    const seasonMonth = Math.floor(now.getMonth() / 3) * 3 + 2 // Mar=2, Jun=5, Sep=8, Dec=11
-    const lastDay = new Date(now.getFullYear(), seasonMonth + 1, 0)
-    return format(lastDay, 'yyyy-MM-dd')
-  })
-  const [customRate, setCustomRate] = useState('')
+  const [periodStart, setPeriodStart] = useState(format(new Date(new Date().getFullYear(), new Date().getMonth(), 1), 'yyyy-MM-dd'))
+  const [periodEnd, setPeriodEnd] = useState(format(new Date(), 'yyyy-MM-dd'))
+  const [customRate, setCustomRate] = useState('15')
   const [customTonnes, setCustomTonnes] = useState('')
   const [notes, setNotes] = useState('')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
-
-  // Auto-calculated values
   const [storedTonnes, setStoredTonnes] = useState(0)
-  const [clientRate, setClientRate] = useState(45)
 
   useEffect(() => {
     supabase.from('fridge_clients').select('*').eq('is_active', true).order('name').then(({ data }) => setClients(data ?? []))
   }, [])
 
-  // When client changes, get their stored tonnes and rate
   useEffect(() => {
     if (!clientId) return
     const client = clients.find(c => c.id === clientId)
-    if (client) {
-      setClientRate(client.rate_per_tonne)
-      setCustomRate(String(client.rate_per_tonne))
-    }
+    if (client) setCustomRate(String(client.rate_per_tonne ?? 15))
     supabase.from('fridge_inventory').select('tonnes').eq('client_id', clientId).gt('tonnes', 0)
       .then(({ data }) => {
         const total = data?.reduce((s, i) => s + parseFloat(i.tonnes), 0) ?? 0
@@ -53,24 +37,23 @@ export default function NewInvoice() {
 
   const tonnes = parseFloat(customTonnes) || 0
   const rate = parseFloat(customRate) || 0
-  const amount = tonnes * rate
+  const days = differenceInDays(new Date(periodEnd), new Date(periodStart)) + 1
+  const months = Math.max(days / 30, 0)
+  const monthsDisplay = months % 1 === 0 ? months.toFixed(0) : months.toFixed(1)
+  const amount = tonnes * rate * months
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!clientId) { setError('اختر زبون'); return }
     if (tonnes <= 0) { setError('أدخل الكمية'); return }
     if (rate <= 0) { setError('أدخل السعر'); return }
+    if (days <= 0) { setError('تاريخ النهاية يجب أن يكون بعد البداية'); return }
 
     setSaving(true)
     const { error: err } = await supabase.from('fridge_invoices').insert({
-      client_id: clientId,
-      period_start: periodStart,
-      period_end: periodEnd,
-      total_tonnes: tonnes,
-      rate,
-      amount,
-      status: 'pending',
-      notes: notes || null,
+      client_id: clientId, period_start: periodStart, period_end: periodEnd,
+      total_tonnes: tonnes, rate, amount: Math.round(amount * 100) / 100,
+      status: 'pending', notes: notes || null,
     })
     setSaving(false)
     if (err) { setError(err.message); return }
@@ -85,14 +68,12 @@ export default function NewInvoice() {
       <h1 className="text-xl font-black text-frost-steel mb-6">فاتورة جديدة</h1>
 
       <form onSubmit={submit} className="card space-y-5">
-        {/* Client picker */}
+        {/* Client */}
         <div>
           <label className="label-f">الزبون</label>
           <div className="flex flex-wrap gap-2">
             {clients.map(c => (
-              <button type="button" key={c.id} onClick={() => setClientId(c.id)} className={chip(clientId === c.id)}>
-                {c.name}
-              </button>
+              <button type="button" key={c.id} onClick={() => setClientId(c.id)} className={chip(clientId === c.id)}>{c.name}</button>
             ))}
           </div>
         </div>
@@ -100,14 +81,20 @@ export default function NewInvoice() {
         {/* Period */}
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="label-f">بداية الفترة</label>
+            <label className="label-f">من تاريخ</label>
             <input type="date" value={periodStart} onChange={e => setPeriodStart(e.target.value)} className="input-f" />
           </div>
           <div>
-            <label className="label-f">نهاية الفترة</label>
+            <label className="label-f">إلى تاريخ</label>
             <input type="date" value={periodEnd} onChange={e => setPeriodEnd(e.target.value)} className="input-f" />
           </div>
         </div>
+        {days > 0 && (
+          <div className="bg-frost-elevated rounded-xl px-4 py-2 flex justify-between text-sm">
+            <span className="text-frost-dim">{days} يوم</span>
+            <span className="text-frost-steel font-bold">{monthsDisplay} شهر</span>
+          </div>
+        )}
 
         {/* Tonnes + Rate */}
         <div className="grid grid-cols-2 gap-3">
@@ -119,23 +106,27 @@ export default function NewInvoice() {
             )}
           </div>
           <div>
-            <label className="label-f">السعر ($/طن)</label>
-            <input type="number" step="0.5" value={customRate} onChange={e => setCustomRate(e.target.value)} className="input-f" placeholder="45" />
+            <label className="label-f">السعر ($/طن/شهر)</label>
+            <input type="number" step="0.5" value={customRate} onChange={e => setCustomRate(e.target.value)} className="input-f" placeholder="15" />
           </div>
         </div>
 
         {/* Total preview */}
         {amount > 0 && (
           <div className="bg-frost-blue/10 border border-frost-blue/30 rounded-xl p-4">
-            <div className="flex items-center gap-2 mb-2">
+            <div className="flex items-center gap-2 mb-3">
               <Calculator size={16} className="text-frost-blue" />
               <p className="text-frost-steel text-sm font-bold uppercase tracking-wide">ملخص الفاتورة</p>
             </div>
-            <div className="flex justify-between text-sm text-frost-dim">
-              <span>{tonnes}t × ${rate}/t (موسم)</span>
-              <span>{periodStart} → {periodEnd}</span>
+            <div className="space-y-1 text-sm text-frost-dim">
+              <div className="flex justify-between"><span>الكمية</span><span className="text-frost-steel font-bold">{tonnes} طن</span></div>
+              <div className="flex justify-between"><span>السعر</span><span className="text-frost-steel font-bold">${rate}/طن/شهر</span></div>
+              <div className="flex justify-between"><span>المدة</span><span className="text-frost-steel font-bold">{monthsDisplay} شهر</span></div>
             </div>
-            <p className="text-frost-steel text-3xl font-black mt-2">${amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+            <div className="border-t border-frost-border/50 mt-3 pt-3 flex justify-between items-end">
+              <span className="text-frost-dim text-sm">{tonnes}t × ${rate} × {monthsDisplay} شهر</span>
+              <span className="text-frost-steel text-3xl font-black">${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+            </div>
           </div>
         )}
 
@@ -146,7 +137,7 @@ export default function NewInvoice() {
 
         {error && <p className="text-red-400 text-sm font-semibold">{error}</p>}
         <button type="submit" disabled={saving || !clientId || amount <= 0} className="btn-blue">
-          {saving ? 'جاري الإنشاء...' : `إنشاء فاتورة — $${amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
+          {saving ? 'جاري الإنشاء...' : `إنشاء فاتورة — $${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
         </button>
       </form>
     </div>

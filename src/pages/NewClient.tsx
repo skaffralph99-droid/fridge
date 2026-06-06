@@ -14,7 +14,7 @@ export default function NewClient() {
   const fromTx = searchParams.get('from') === 'transaction'
   const [name, setName] = useState(''); const [phone, setPhone] = useState('')
   const [company, setCompany] = useState(''); const [whatsapp, setWhatsapp] = useState('')
-  const [type, setType] = useState('farmer'); const [rate, setRate] = useState('45')
+  const [type, setType] = useState('farmer'); const [rate, setRate] = useState('15')
   const [terms, setTerms] = useState('seasonal'); const [notes, setNotes] = useState('')
   const [saving, setSaving] = useState(false); const [error, setError] = useState('')
 
@@ -25,7 +25,7 @@ export default function NewClient() {
     const { data, error: err } = await supabase.from('fridge_clients').insert({
       name: name.trim(), phone: phone || null, company: company || null,
       whatsapp: whatsapp || phone || null, client_type: type,
-      rate_per_tonne: parseFloat(rate) || 45, payment_terms: terms, notes: notes || null,
+      rate_per_tonne: parseFloat(rate) || 15, payment_terms: terms, notes: notes || null,
     }).select().single()
     setSaving(false)
     if (err) { setError(err.message); return }
@@ -44,7 +44,7 @@ export default function NewClient() {
         <div><label className="label-f">{tr('phone')}</label><input value={phone} onChange={e => setPhone(e.target.value)} className="input-f" placeholder="+961 XX XXX XXX" /></div>
         <div><label className="label-f">واتساب</label><input value={whatsapp} onChange={e => setWhatsapp(e.target.value)} className="input-f" placeholder="نفس رقم الهاتف إذا فارغ" /></div>
         <div><label className="label-f">النوع</label><div className="flex flex-wrap gap-2">{TYPES.map(t => <button type="button" key={t} onClick={() => setType(t)} className={chip(type === t)}>{t === 'farmer' ? '🌾' : t === 'factory' ? '🏭' : t === 'distributor' ? '🚚' : '📦'} {t}</button>)}</div></div>
-        <div><label className="label-f">السعر ($/طن)</label><input value={rate} onChange={e => setRate(e.target.value)} className="input-f" type="number" step="0.5" /></div>
+        <div><label className="label-f">السعر ($/طن/شهر)</label><input value={rate} onChange={e => setRate(e.target.value)} className="input-f" type="number" step="0.5" /></div>
         <div><label className="label-f">شروط الدفع</label><div className="flex flex-wrap gap-2">{TERMS.map(t => <button type="button" key={t} onClick={() => setTerms(t)} className={chip(terms === t)}>{t.replace('_', ' ')}</button>)}</div></div>
         <div><label className="label-f">ملاحظات</label><input value={notes} onChange={e => setNotes(e.target.value)} className="input-f" placeholder="ترتيبات خاصة..." /></div>
         {error && <p className="text-red-400 text-sm font-semibold">{error}</p>}

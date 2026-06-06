@@ -213,7 +213,7 @@ export default function NewTransaction() {
               <Label>من الزبون؟</Label>
               <div className="flex flex-wrap gap-2">
                 {clients.map(c => <Chip key={c.id} selected={clientId === c.id} onClick={() => setClientId(c.id)}>{c.name}</Chip>)}
-                <button onClick={() => { setNewClientName(''); setNewClientPhone(''); setNewClientRate('45'); setModalError(''); setShowNewClient(true) }} className="px-5 py-3 rounded-2xl border-2 border-dashed border-frost-border text-frost-blue text-sm font-bold flex items-center gap-1 active:scale-95"><Plus size={14} /> جديد</button>
+                <button onClick={() => { setNewClientName(''); setNewClientPhone(''); setNewClientRate('15'); setModalError(''); setShowNewClient(true) }} className="px-5 py-3 rounded-2xl border-2 border-dashed border-frost-border text-frost-blue text-sm font-bold flex items-center gap-1 active:scale-95"><Plus size={14} /> جديد</button>
               </div>
             </div>
 
@@ -398,7 +398,7 @@ export default function NewTransaction() {
             <h2 className="text-frost-steel font-black text-lg">زبون جديد</h2>
             <div><label className="label-f">الاسم *</label><input value={newClientName} onChange={e => setNewClientName(e.target.value)} className="input-f" placeholder="أحمد خليل" /></div>
             <div><label className="label-f">الهاتف</label><input value={newClientPhone} onChange={e => setNewClientPhone(e.target.value)} className="input-f" placeholder="+961 XX XXX XXX" /></div>
-            <div><label className="label-f">السعر ($/طن)</label><input value={newClientRate} onChange={e => setNewClientRate(e.target.value)} className="input-f" type="number" step="0.5" /></div>
+            <div><label className="label-f">السعر ($/طن/شهر)</label><input value={newClientRate} onChange={e => setNewClientRate(e.target.value)} className="input-f" type="number" step="0.5" /></div>
             {modalError && <p className="text-red-400 text-sm font-semibold">{modalError}</p>}
             <div className="flex gap-3">
               <button disabled={modalSaving} onClick={async () => {
@@ -406,7 +406,7 @@ export default function NewTransaction() {
                 setModalSaving(true); setModalError('')
                 const { data, error: err } = await supabase.from('fridge_clients').insert({
                   name: newClientName.trim(), phone: newClientPhone || null,
-                  rate_per_tonne: parseFloat(newClientRate) || 45, payment_terms: 'monthly',
+                  rate_per_tonne: parseFloat(newClientRate) || 15, payment_terms: 'seasonal',
                 }).select().single()
                 setModalSaving(false)
                 if (err) { setModalError(err.message); return }
