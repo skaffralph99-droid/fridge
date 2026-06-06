@@ -32,6 +32,20 @@ export default function NewTransaction() {
   const [error, setError] = useState('')
   const [clientInventory, setClientInventory] = useState<any[]>([])
 
+  // Inline modals — no more navigating away
+  const [showNewClient, setShowNewClient] = useState(false)
+  const [showNewWorker, setShowNewWorker] = useState(false)
+  const [newClientName, setNewClientName] = useState('')
+  const [newClientPhone, setNewClientPhone] = useState('')
+  const [newClientRate, setNewClientRate] = useState('45')
+  const [newWorkerName, setNewWorkerName] = useState('')
+  const [newWorkerRole, setNewWorkerRole] = useState<'loader' | 'driver'>('loader')
+  const [newWorkerRateLoad, setNewWorkerRateLoad] = useState('')
+  const [newWorkerRateUnload, setNewWorkerRateUnload] = useState('')
+  const [newWorkerRateDriver, setNewWorkerRateDriver] = useState('')
+  const [modalSaving, setModalSaving] = useState(false)
+  const [modalError, setModalError] = useState('')
+
   const wFirst = parseFloat(weightFirst) || 0
   const wSecond = parseFloat(weightSecond) || 0
   const netKg = Math.abs(wSecond - wFirst)
@@ -44,19 +58,8 @@ export default function NewTransaction() {
     supabase.from('fridge_workers').select('*').eq('is_active', true).order('name').then(({ data }) => setWorkers(data ?? []))
   }, [])
 
-  // Restore draft
+  // Restore newClientId from URL if coming back from standalone page (backwards compat)
   useEffect(() => {
-    const saved = sessionStorage.getItem('tx_draft')
-    if (saved) {
-      try {
-        const d = JSON.parse(saved)
-        Object.entries(d).forEach(([k, v]) => {
-          const setters: any = { step: setStep, type: setType, clientId: setClientId, roomId: setRoomId, product: setProduct, company: setCompany, txDate: setTxDate, plateNumber: setPlateNumber, weightFirst: setWeightFirst, weightSecond: setWeightSecond, selectedLoaders: setSelectedLoaders, noLoaders: setNoLoaders, selectedDriver: setSelectedDriver, noDriver: setNoDriver, notes: setNotes }
-          if (setters[k]) setters[k](v)
-        })
-        sessionStorage.removeItem('tx_draft')
-      } catch {}
-    }
     const nc = params.get('newClientId')
     if (nc) setClientId(nc)
   }, [params])
@@ -77,9 +80,6 @@ export default function NewTransaction() {
   const driverCost = selectedDriver ? parseFloat(workers.find(w => w.id === selectedDriver)?.rate ?? 0) : 0
 
   const toggleLoader = (id: string) => { setNoLoaders(false); setSelectedLoaders(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]) }
-
-  const saveDraft = () => sessionStorage.setItem('tx_draft', JSON.stringify({ step, type, clientId, roomId, product, company, txDate, plateNumber, weightFirst, weightSecond, selectedLoaders, noLoaders, selectedDriver, noDriver, notes }))
-  const goAdd = (path: string) => { saveDraft(); nav(path) }
 
   const clientName = clients.find(c => c.id === clientId)?.name ?? ''
   const roomName = rooms.find(r => r.id === roomId)?.name ?? ''
@@ -213,7 +213,7 @@ export default function NewTransaction() {
               <Label>من الزبون؟</Label>
               <div className="flex flex-wrap gap-2">
                 {clients.map(c => <Chip key={c.id} selected={clientId === c.id} onClick={() => setClientId(c.id)}>{c.name}</Chip>)}
-                <button onClick={() => goAdd('/clients/new?from=transaction')} className="px-5 py-3 rounded-2xl border-2 border-dashed border-frost-border text-frost-blue text-sm font-bold flex items-center gap-1 active:scale-95"><Plus size={14} /> جديد</button>
+                <button onClick={() => { setNewClientName(''); setNewClientPhone(''); setNewClientRate('45'); setModalError(''); setShowNewClient(true) }} className="px-5 py-3 rounded-2xl border-2 border-dashed border-frost-border text-frost-blue text-sm font-bold flex items-center gap-1 active:scale-95"><Plus size={14} /> جديد</button>
               </div>
             </div>
 
@@ -303,7 +303,7 @@ export default function NewTransaction() {
                     <span className="text-[10px] opacity-70 mr-1">${type === 'in' ? parseFloat(w.rate_loading ?? w.rate) : parseFloat(w.rate_unloading ?? w.rate)}/t</span>
                   </Chip>
                 ))}
-                <button onClick={() => goAdd('/workers/new?from=transaction&role=loader')} className="px-5 py-3 rounded-2xl border-2 border-dashed border-frost-border text-frost-blue text-sm font-bold flex items-center gap-1 active:scale-95"><Plus size={14} /></button>
+                <button onClick={() => { setNewWorkerRole('loader'); setNewWorkerName(''); setNewWorkerRateLoad(''); setNewWorkerRateUnload(''); setModalError(''); setShowNewWorker(true) }} className="px-5 py-3 rounded-2xl border-2 border-dashed border-frost-border text-frost-blue text-sm font-bold flex items-center gap-1 active:scale-95"><Plus size={14} /></button>
               </div>
               {selectedLoaders.length > 0 && t > 0 && (
                 <p className="text-green-400 text-sm mt-3 font-bold bg-green-500/10 rounded-xl px-4 py-2 inline-block">
@@ -322,7 +322,7 @@ export default function NewTransaction() {
                     <span className="text-[10px] opacity-70 mr-1">${parseFloat(w.rate)}</span>
                   </Chip>
                 ))}
-                <button onClick={() => goAdd('/workers/new?from=transaction&role=driver')} className="px-5 py-3 rounded-2xl border-2 border-dashed border-frost-border text-frost-blue text-sm font-bold flex items-center gap-1 active:scale-95"><Plus size={14} /></button>
+                <button onClick={() => { setNewWorkerRole('driver'); setNewWorkerName(''); setNewWorkerRateDriver(''); setModalError(''); setShowNewWorker(true) }} className="px-5 py-3 rounded-2xl border-2 border-dashed border-frost-border text-frost-blue text-sm font-bold flex items-center gap-1 active:scale-95"><Plus size={14} /></button>
               </div>
               {selectedDriver && !noDriver && (
                 <p className="text-orange-400 text-sm mt-3 font-bold bg-orange-500/10 rounded-xl px-4 py-2 inline-block">
@@ -390,6 +390,78 @@ export default function NewTransaction() {
         @keyframes fadeIn { from { opacity: 0; transform: translateY(8px) } to { opacity: 1; transform: translateY(0) } }
         .animate-fadeIn { animation: fadeIn 0.25s ease-out }
       `}</style>
+
+      {/* ===== NEW CLIENT MODAL ===== */}
+      {showNewClient && (
+        <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4" onClick={() => setShowNewClient(false)}>
+          <div className="bg-frost-dark border border-frost-border rounded-3xl p-6 w-full max-w-sm space-y-4" onClick={e => e.stopPropagation()}>
+            <h2 className="text-frost-steel font-black text-lg">زبون جديد</h2>
+            <div><label className="label-f">الاسم *</label><input value={newClientName} onChange={e => setNewClientName(e.target.value)} className="input-f" placeholder="أحمد خليل" /></div>
+            <div><label className="label-f">الهاتف</label><input value={newClientPhone} onChange={e => setNewClientPhone(e.target.value)} className="input-f" placeholder="+961 XX XXX XXX" /></div>
+            <div><label className="label-f">السعر ($/طن)</label><input value={newClientRate} onChange={e => setNewClientRate(e.target.value)} className="input-f" type="number" step="0.5" /></div>
+            {modalError && <p className="text-red-400 text-sm font-semibold">{modalError}</p>}
+            <div className="flex gap-3">
+              <button disabled={modalSaving} onClick={async () => {
+                if (!newClientName.trim()) { setModalError('الاسم مطلوب'); return }
+                setModalSaving(true); setModalError('')
+                const { data, error: err } = await supabase.from('fridge_clients').insert({
+                  name: newClientName.trim(), phone: newClientPhone || null,
+                  rate_per_tonne: parseFloat(newClientRate) || 45, payment_terms: 'monthly',
+                }).select().single()
+                setModalSaving(false)
+                if (err) { setModalError(err.message); return }
+                const { data: refreshed } = await supabase.from('fridge_clients').select('*').eq('is_active', true).order('name')
+                if (refreshed) setClients(refreshed)
+                setClientId(data.id)
+                setShowNewClient(false)
+              }} className="btn-blue flex-1">{modalSaving ? 'جاري...' : 'إضافة'}</button>
+              <button onClick={() => setShowNewClient(false)} className="px-4 py-2 text-frost-dim font-bold">إلغاء</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===== NEW WORKER MODAL ===== */}
+      {showNewWorker && (
+        <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4" onClick={() => setShowNewWorker(false)}>
+          <div className="bg-frost-dark border border-frost-border rounded-3xl p-6 w-full max-w-sm space-y-4" onClick={e => e.stopPropagation()}>
+            <h2 className="text-frost-steel font-black text-lg">{newWorkerRole === 'loader' ? 'عامل تحميل جديد' : 'سائق جديد'}</h2>
+            <div><label className="label-f">الاسم *</label><input value={newWorkerName} onChange={e => setNewWorkerName(e.target.value)} className="input-f" placeholder="مثال: حسن" /></div>
+            {newWorkerRole === 'loader' ? (
+              <>
+                <div><label className="label-f">سعر التحميل ($/طن) *</label><input type="number" step="0.5" value={newWorkerRateLoad} onChange={e => setNewWorkerRateLoad(e.target.value)} className="input-f" placeholder="2" /></div>
+                <div><label className="label-f">سعر التنزيل ($/طن) *</label><input type="number" step="0.5" value={newWorkerRateUnload} onChange={e => setNewWorkerRateUnload(e.target.value)} className="input-f" placeholder="3" /></div>
+              </>
+            ) : (
+              <div><label className="label-f">سعر الرحلة ($) *</label><input type="number" step="0.5" value={newWorkerRateDriver} onChange={e => setNewWorkerRateDriver(e.target.value)} className="input-f" placeholder="50" /></div>
+            )}
+            {modalError && <p className="text-red-400 text-sm font-semibold">{modalError}</p>}
+            <div className="flex gap-3">
+              <button disabled={modalSaving} onClick={async () => {
+                if (!newWorkerName.trim()) { setModalError('الاسم مطلوب'); return }
+                if (newWorkerRole === 'loader' && (!newWorkerRateLoad || !newWorkerRateUnload)) { setModalError('أدخل الأسعار'); return }
+                if (newWorkerRole === 'driver' && !newWorkerRateDriver) { setModalError('أدخل سعر الرحلة'); return }
+                setModalSaving(true); setModalError('')
+                const { data, error: err } = await supabase.from('fridge_workers').insert({
+                  name: newWorkerName.trim(), role: newWorkerRole,
+                  rate: newWorkerRole === 'driver' ? parseFloat(newWorkerRateDriver) : parseFloat(newWorkerRateLoad),
+                  rate_loading: newWorkerRole === 'loader' ? parseFloat(newWorkerRateLoad) : 0,
+                  rate_unloading: newWorkerRole === 'loader' ? parseFloat(newWorkerRateUnload) : 0,
+                }).select().single()
+                setModalSaving(false)
+                if (err) { setModalError(err.message); return }
+                const { data: refreshed } = await supabase.from('fridge_workers').select('*').eq('is_active', true).order('name')
+                if (refreshed) setWorkers(refreshed)
+                if (newWorkerRole === 'loader') setSelectedLoaders(prev => [...prev, data.id])
+                else setSelectedDriver(data.id)
+                setNoLoaders(false); setNoDriver(false)
+                setShowNewWorker(false)
+              }} className="btn-blue flex-1">{modalSaving ? 'جاري...' : 'إضافة'}</button>
+              <button onClick={() => setShowNewWorker(false)} className="px-4 py-2 text-frost-dim font-bold">إلغاء</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -92,13 +92,25 @@ export default function Dashboard() {
       )}
 
       {/* Analytics Link */}
-      <Link to="/analytics" className="card mb-5 flex items-center gap-3 hover:border-frost-blue transition-colors">
+      <Link to="/analytics" className="card mb-3 flex items-center gap-3 hover:border-frost-blue transition-colors">
         <div className="w-10 h-10 rounded-xl bg-frost-blue/15 flex items-center justify-center shrink-0">
           <TrendingUp size={18} className="text-frost-blue" />
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-frost-steel font-bold text-sm">{tr('analytics')}</p>
           <p className="text-frost-dim text-xs">الأرباح والإشغال والتفاصيل</p>
+        </div>
+        <ChevronRight size={16} className="text-frost-dim shrink-0" />
+      </Link>
+
+      {/* Workers Link */}
+      <Link to="/workers" className="card mb-5 flex items-center gap-3 hover:border-frost-blue transition-colors">
+        <div className="w-10 h-10 rounded-xl bg-orange-500/15 flex items-center justify-center shrink-0">
+          <HardHat size={18} className="text-orange-400" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-frost-steel font-bold text-sm">{tr('workers')}</p>
+          <p className="text-frost-dim text-xs">العمال والسائقين والأجور</p>
         </div>
         <ChevronRight size={16} className="text-frost-dim shrink-0" />
       </Link>

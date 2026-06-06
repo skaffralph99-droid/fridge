@@ -7,11 +7,9 @@ export default function Layout() {
 
   const NAV = [
     { to: '/', icon: LayoutDashboard, label: tr('home') },
-    { to: '/rooms', icon: Warehouse, label: tr('rooms') },
     { to: '/transactions', icon: ArrowLeftRight, label: tr('inOut') },
     { to: '/clients', icon: Users, label: tr('clients') },
     { to: '/invoices', icon: FileText, label: tr('invoices') },
-    { to: '/workers', icon: HardHat, label: tr('workers') },
   ]
 
   return (
