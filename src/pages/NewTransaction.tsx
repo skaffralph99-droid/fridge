@@ -31,6 +31,7 @@ export default function NewTransaction() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [clientInventory, setClientInventory] = useState<any[]>([])
+  const [savedTx, setSavedTx] = useState<{ ticketNo: string } | null>(null)
 
   // Inline modals — no more navigating away
   const [showNewClient, setShowNewClient] = useState(false)
@@ -130,37 +131,62 @@ export default function NewTransaction() {
     if (recs.length > 0) await supabase.from('fridge_transaction_workers').insert(recs)
 
     setSaving(false)
-    
-    // Open receipt directly (popup blockers block after confirm)
-    {
-      const lines = [
-        '<div class="row"><span>النوع</span><span>' + (type === 'in' ? 'إدخال ▼' : 'إخراج ▲') + '</span></div>',
-        '<div class="row"><span>الزبون</span><span>' + clientName + '</span></div>',
-        company ? '<div class="row"><span>الشركة</span><span>' + company + '</span></div>' : '',
-        '<div class="row"><span>الغرفة</span><span>' + roomName + '</span></div>',
-        '<div class="row"><span>المنتج</span><span>' + product + '</span></div>',
-        '<div class="row"><span>الشاحنة</span><span>' + plateNumber + '</span></div>',
-        '<div class="row"><span>الوزنة ١</span><span>' + wFirst.toLocaleString() + ' كغ</span></div>',
-        '<div class="row"><span>الوزنة ٢</span><span>' + wSecond.toLocaleString() + ' كغ</span></div>',
-        '<div class="big">' + tonnes + ' طن</div>',
-      ].filter(Boolean).join('')
+    setSavedTx({ ticketNo: tx.ticket_no })
+  }
 
-      const html = '<!DOCTYPE html><html lang="ar"><head><meta charset="UTF-8"><title>إيصال</title>' +
-        '<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Segoe UI,sans-serif;padding:30px;color:#1a1a2e;direction:rtl;max-width:400px;margin:0 auto}' +
-        '.hdr{text-align:center;border-bottom:2px solid #000;padding-bottom:15px;margin-bottom:15px}.hdr h1{font-size:20px}.hdr p{color:#666;font-size:12px;margin-top:4px}' +
-        '.row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #eee;font-size:14px}.row span:last-child{font-weight:700}' +
-        '.big{font-size:24px;text-align:center;margin:15px 0;font-weight:900}.ft{text-align:center;margin-top:20px;color:#999;font-size:11px}' +
-        '@media print{body{padding:10px}}</style></head><body>' +
-        '<div class="hdr"><h1>❄️ إيصال تخزين</h1><p>بطاقة #' + tx.ticket_no + '</p></div>' +
-        lines +
-        '<div class="ft">❄️ إدارة التبريد</div>' +
-        '<script>window.onload=function(){window.print()}<\/script></body></html>'
-      
-      const win = window.open('', '_blank')
-      if (win) { win.document.write(html); win.document.close() }
+  const receiptText = () => {
+    const lines = [
+      `❄️ إيصال تخزين — بطاقة #${savedTx?.ticketNo}`,
+      ``,
+      `النوع: ${type === 'in' ? 'إدخال ▼' : 'إخراج ▲'}`,
+      `الزبون: ${clientName}`,
+      company ? `الشركة: ${company}` : '',
+      `الغرفة: ${roomName}`,
+      `المنتج: ${product}`,
+      `الشاحنة: ${plateNumber}`,
+      `الوزنة ١: ${wFirst.toLocaleString()} كغ`,
+      `الوزنة ٢: ${wSecond.toLocaleString()} كغ`,
+      ``,
+      `⚖️ الوزن الصافي: ${tonnes} طن`,
+    ].filter(Boolean).join('\n')
+    return lines
+  }
+
+  const printReceipt = () => {
+    const lines = [
+      '<div class="row"><span>النوع</span><span>' + (type === 'in' ? 'إدخال ▼' : 'إخراج ▲') + '</span></div>',
+      '<div class="row"><span>الزبون</span><span>' + clientName + '</span></div>',
+      company ? '<div class="row"><span>الشركة</span><span>' + company + '</span></div>' : '',
+      '<div class="row"><span>الغرفة</span><span>' + roomName + '</span></div>',
+      '<div class="row"><span>المنتج</span><span>' + product + '</span></div>',
+      '<div class="row"><span>الشاحنة</span><span>' + plateNumber + '</span></div>',
+      '<div class="row"><span>الوزنة ١</span><span>' + wFirst.toLocaleString() + ' كغ</span></div>',
+      '<div class="row"><span>الوزنة ٢</span><span>' + wSecond.toLocaleString() + ' كغ</span></div>',
+      '<div class="big">' + tonnes + ' طن</div>',
+    ].filter(Boolean).join('')
+    const html = '<!DOCTYPE html><html lang="ar"><head><meta charset="UTF-8"><title>إيصال</title>' +
+      '<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Segoe UI,sans-serif;padding:30px;color:#1a1a2e;direction:rtl;max-width:400px;margin:0 auto}' +
+      '.hdr{text-align:center;border-bottom:2px solid #000;padding-bottom:15px;margin-bottom:15px}.hdr h1{font-size:20px}.hdr p{color:#666;font-size:12px;margin-top:4px}' +
+      '.row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #eee;font-size:14px}.row span:last-child{font-weight:700}' +
+      '.big{font-size:24px;text-align:center;margin:15px 0;font-weight:900}.ft{text-align:center;margin-top:20px;color:#999;font-size:11px}' +
+      '@media print{body{padding:10px}}</style></head><body>' +
+      '<div class="hdr"><h1>❄️ إيصال تخزين</h1><p>بطاقة #' + savedTx?.ticketNo + '</p></div>' +
+      lines +
+      '<div class="ft">❄️ إدارة التبريد</div>' +
+      '<script>window.onload=function(){window.print()}<\/script></body></html>'
+    const win = window.open('', '_blank')
+    if (win) { win.document.write(html); win.document.close() }
+  }
+
+  const sendWhatsApp = () => {
+    const client = clients.find(c => c.id === clientId)
+    const phone = (client?.whatsapp || client?.phone || '').replace(/[^0-9]/g, '')
+    const text = encodeURIComponent(receiptText())
+    if (phone) {
+      window.open(`https://wa.me/${phone}?text=${text}`, '_blank')
+    } else {
+      window.open(`https://wa.me/?text=${text}`, '_blank')
     }
-    alert('✅ تم الحفظ — بطاقة #' + tx.ticket_no)
-    nav('/transactions')
   }
 
   // --- UI helpers ---
@@ -179,7 +205,40 @@ export default function NewTransaction() {
 
   return (
     <div className="min-h-screen bg-frost-bg">
-      {/* Top bar */}
+      {/* ===== SUCCESS SCREEN ===== */}
+      {savedTx ? (
+        <div className="flex flex-col items-center justify-center min-h-screen px-6 pb-24">
+          <div className="text-6xl mb-4">✅</div>
+          <h1 className="text-frost-steel text-2xl font-black mb-1">تم الحفظ!</h1>
+          <p className="text-frost-dim text-sm mb-8">بطاقة #{savedTx.ticketNo}</p>
+
+          <div className="w-full max-w-sm space-y-3">
+            {/* Receipt summary */}
+            <div className="card text-sm space-y-2 mb-4" style={{ direction: 'rtl' }}>
+              <div className="flex justify-between"><span className="text-frost-dim">النوع</span><span className={`font-bold ${type === 'in' ? 'text-green-400' : 'text-red-400'}`}>{type === 'in' ? 'إدخال ▼' : 'إخراج ▲'}</span></div>
+              <div className="flex justify-between"><span className="text-frost-dim">الزبون</span><span className="text-frost-steel font-bold">{clientName}</span></div>
+              <div className="flex justify-between"><span className="text-frost-dim">الغرفة</span><span className="text-frost-steel font-bold">{roomName}</span></div>
+              <div className="flex justify-between"><span className="text-frost-dim">المنتج</span><span className="text-frost-steel font-bold">{product}</span></div>
+              <div className="flex justify-between"><span className="text-frost-dim">الشاحنة</span><span className="text-frost-steel font-bold">{plateNumber}</span></div>
+              <div className="border-t border-frost-border pt-2 mt-2 text-center">
+                <span className="text-frost-blue text-2xl font-black">{tonnes} طن</span>
+              </div>
+            </div>
+
+            {/* Action buttons */}
+            <button onClick={sendWhatsApp} className="w-full py-4 rounded-2xl font-bold text-lg bg-green-500 text-white flex items-center justify-center gap-2 active:scale-[0.98] transition-all">
+              📱 إرسال عبر واتساب
+            </button>
+            <button onClick={printReceipt} className="w-full py-3 rounded-2xl font-bold text-sm border-2 border-frost-border text-frost-steel active:scale-[0.98] transition-all">
+              🖨️ طباعة الإيصال
+            </button>
+            <button onClick={() => nav('/transactions')} className="w-full py-3 rounded-2xl font-bold text-sm text-frost-dim active:scale-[0.98] transition-all">
+              تم ←
+            </button>
+          </div>
+        </div>
+      ) : (
+      <>
       <div className="sticky top-0 z-10 bg-frost-dark/95 backdrop-blur-md border-b border-frost-border/50 px-4 py-3">
         <div className="max-w-lg mx-auto flex items-center justify-between">
           <button onClick={() => step > 1 ? prev() : nav(-1)} className="text-frost-blue font-bold text-sm flex items-center gap-1">
@@ -461,6 +520,8 @@ export default function NewTransaction() {
             </div>
           </div>
         </div>
+      )}
+      </>
       )}
     </div>
   )
