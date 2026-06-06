@@ -15,7 +15,7 @@ export default function NewClient() {
   const [name, setName] = useState(''); const [phone, setPhone] = useState('')
   const [company, setCompany] = useState(''); const [whatsapp, setWhatsapp] = useState('')
   const [type, setType] = useState('farmer'); const [rate, setRate] = useState('45')
-  const [terms, setTerms] = useState('monthly'); const [notes, setNotes] = useState('')
+  const [terms, setTerms] = useState('seasonal'); const [notes, setNotes] = useState('')
   const [saving, setSaving] = useState(false); const [error, setError] = useState('')
 
   const submit = async (e: React.FormEvent) => {

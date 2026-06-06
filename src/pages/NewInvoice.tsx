@@ -10,8 +10,17 @@ export default function NewInvoice() {
   const nav = useNavigate()
   const [clients, setClients] = useState<any[]>([])
   const [clientId, setClientId] = useState('')
-  const [periodStart, setPeriodStart] = useState(format(new Date(new Date().getFullYear(), new Date().getMonth(), 1), 'yyyy-MM-dd'))
-  const [periodEnd, setPeriodEnd] = useState(format(new Date(), 'yyyy-MM-dd'))
+  const [periodStart, setPeriodStart] = useState(() => {
+    const now = new Date()
+    const seasonMonth = Math.floor(now.getMonth() / 3) * 3 // Jan=0, Apr=3, Jul=6, Oct=9
+    return format(new Date(now.getFullYear(), seasonMonth, 1), 'yyyy-MM-dd')
+  })
+  const [periodEnd, setPeriodEnd] = useState(() => {
+    const now = new Date()
+    const seasonMonth = Math.floor(now.getMonth() / 3) * 3 + 2 // Mar=2, Jun=5, Sep=8, Dec=11
+    const lastDay = new Date(now.getFullYear(), seasonMonth + 1, 0)
+    return format(lastDay, 'yyyy-MM-dd')
+  })
   const [customRate, setCustomRate] = useState('')
   const [customTonnes, setCustomTonnes] = useState('')
   const [notes, setNotes] = useState('')
@@ -123,7 +132,7 @@ export default function NewInvoice() {
               <p className="text-frost-steel text-sm font-bold uppercase tracking-wide">ملخص الفاتورة</p>
             </div>
             <div className="flex justify-between text-sm text-frost-dim">
-              <span>{tonnes}t × ${rate}/t</span>
+              <span>{tonnes}t × ${rate}/t (موسم)</span>
               <span>{periodStart} → {periodEnd}</span>
             </div>
             <p className="text-frost-steel text-3xl font-black mt-2">${amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
