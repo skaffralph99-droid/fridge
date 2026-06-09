@@ -23,29 +23,8 @@ export default function Transactions() {
 
   const deleteTx = async (tx: any) => {
     if (!confirm('هل تريد حذف هذه الحركة؟ سيتم تعديل المخزون والغرفة.')) return
-
-    // Reverse the room tonnage
-    const { data: room } = await supabase.from('fridge_rooms').select('*').eq('id', tx.room_id).single()
-    if (room) {
-      const cur = parseFloat(room.current_tonnes) || 0
-      const t = parseFloat(tx.tonnes) || 0
-      const newTonnes = tx.type === 'in' ? Math.max(0, cur - t) : cur + t
-      await supabase.from('fridge_rooms').update({ current_tonnes: newTonnes }).eq('id', tx.room_id)
-    }
-
-    // Reverse inventory
-    const { data: inv } = await supabase.from('fridge_inventory').select('*')
-      .eq('client_id', tx.client_id).eq('room_id', tx.room_id).eq('product_type', tx.product_type).single()
-    if (inv) {
-      const t = parseFloat(tx.tonnes) || 0
-      const newQty = tx.type === 'in' ? Math.max(0, parseFloat(inv.tonnes) - t) : parseFloat(inv.tonnes) + t
-      if (newQty <= 0) await supabase.from('fridge_inventory').delete().eq('id', inv.id)
-      else await supabase.from('fridge_inventory').update({ tonnes: newQty }).eq('id', inv.id)
-    }
-
-    // Delete workers + transaction
-    await supabase.from('fridge_transaction_workers').delete().eq('transaction_id', tx.id)
-    await supabase.from('fridge_transactions').delete().eq('id', tx.id)
+    const { error } = await supabase.rpc('fridge_delete_transaction', { p_tx_id: tx.id })
+    if (error) { alert('تعذّر حذف الحركة: ' + error.message); return }
     load()
   }
 

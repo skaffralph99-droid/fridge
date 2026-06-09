@@ -109,29 +109,60 @@ export default function NewTransaction() {
   const submit = async () => {
     if (!confirm('تأكيد حفظ هذه الحركة؟')) return
     setSaving(true); setError('')
-    const { data: room } = await supabase.from('fridge_rooms').select('*').eq('id', roomId).single()
-    if (!room) { setError('غرفة غير موجودة'); setSaving(false); return }
-    const cur = parseFloat(room.current_tonnes) || 0
-    const cap = parseFloat(room.capacity_tonnes) || 0
-    if (type === 'in' && cur + t > cap) { setError(`المساحة غير كافية (${(cap - cur).toFixed(1)}t متاح)`); setSaving(false); return }
-    if (type === 'out') { const inv = clientInventory.find(i => i.product_type === product); if (!inv || parseFloat(inv.tonnes) < t) { setError('الكمية غير كافية'); setSaving(false); return } }
 
-    const { data: tx, error: e } = await supabase.from('fridge_transactions').insert({ client_id: clientId, room_id: roomId, type, product_type: product, tonnes: t, date: txDate, notes: notes || null, recorded_by: user?.id, plate_number: plateNumber, weight_first: wFirst, weight_second: wSecond, weight_net: netKg, company: company || null }).select('id, ticket_no').single()
-    if (e) { setError(e.message); setSaving(false); return }
+    // Build worker earnings payload
+    const workerRecs: { worker_id: string; role: string; earnings: number }[] = []
+    if (!noLoaders) for (const lid of selectedLoaders) {
+      const w = workers.find(x => x.id === lid)
+      if (w) {
+        const r = type === 'in' ? parseFloat(w.rate_loading ?? w.rate) : parseFloat(w.rate_unloading ?? w.rate)
+        workerRecs.push({ worker_id: lid, role: 'loader', earnings: (r || 0) * t })
+      }
+    }
+    if (!noDriver && selectedDriver) {
+      const w = workers.find(x => x.id === selectedDriver)
+      if (w) workerRecs.push({ worker_id: selectedDriver, role: 'driver', earnings: parseFloat(w.rate) || 0 })
+    }
 
-    await supabase.from('fridge_rooms').update({ current_tonnes: type === 'in' ? cur + t : Math.max(0, cur - t) }).eq('id', roomId)
-
-    const { data: inv } = await supabase.from('fridge_inventory').select('*').eq('client_id', clientId).eq('room_id', roomId).eq('product_type', product).single()
-    if (inv) { const q = type === 'in' ? parseFloat(inv.tonnes) + t : Math.max(0, parseFloat(inv.tonnes) - t); q <= 0 ? await supabase.from('fridge_inventory').delete().eq('id', inv.id) : await supabase.from('fridge_inventory').update({ tonnes: q }).eq('id', inv.id) }
-    else if (type === 'in') await supabase.from('fridge_inventory').insert({ client_id: clientId, room_id: roomId, product_type: product, tonnes: t })
-
-    const recs: any[] = []
-    if (!noLoaders) for (const lid of selectedLoaders) { const w = workers.find(x => x.id === lid); if (w) { const r = type === 'in' ? parseFloat(w.rate_loading ?? w.rate) : parseFloat(w.rate_unloading ?? w.rate); recs.push({ transaction_id: tx.id, worker_id: lid, role: 'loader', earnings: r * t }) } }
-    if (!noDriver && selectedDriver) { const w = workers.find(x => x.id === selectedDriver); if (w) recs.push({ transaction_id: tx.id, worker_id: selectedDriver, role: 'driver', earnings: parseFloat(w.rate) }) }
-    if (recs.length > 0) await supabase.from('fridge_transaction_workers').insert(recs)
+    // Atomic create — room tonnage, inventory, transaction and worker rows all move together
+    const { data, error: e } = await supabase.rpc('fridge_create_transaction', {
+      p_client_id: clientId,
+      p_room_id: roomId,
+      p_type: type,
+      p_product_type: product,
+      p_tonnes: t,
+      p_date: txDate,
+      p_notes: notes || null,
+      p_recorded_by: user?.id ?? null,
+      p_plate_number: plateNumber,
+      p_weight_first: wFirst,
+      p_weight_second: wSecond,
+      p_weight_net: netKg,
+      p_company: company || null,
+      p_workers: workerRecs,
+    })
 
     setSaving(false)
-    setSavedTx({ ticketNo: tx.ticket_no })
+
+    if (e) {
+      const msg = e.message || ''
+      if (msg.includes('CAPACITY_EXCEEDED')) {
+        const avail = msg.split('CAPACITY_EXCEEDED:')[1]?.trim()
+        setError(`المساحة غير كافية${avail ? ` (${avail}t متاح)` : ''}`)
+      } else if (msg.includes('INSUFFICIENT_INVENTORY')) {
+        setError('الكمية غير كافية في المخزون')
+      } else if (msg.includes('ROOM_NOT_FOUND')) {
+        setError('غرفة غير موجودة')
+      } else if (msg.includes('INVALID_TONNES')) {
+        setError('الوزن غير صحيح')
+      } else {
+        setError(msg)
+      }
+      return
+    }
+
+    const row = Array.isArray(data) ? data[0] : data
+    setSavedTx({ ticketNo: row?.ticket_no })
   }
 
   const receiptText = () => {
